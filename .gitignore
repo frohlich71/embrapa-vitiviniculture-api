@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.log
+.env
+*.sqlite3
+*.db
+
+# VSCode / IDEs
+.vscode/
+.idea/
+
+# Virtual env
+venv/
+.env/
+
+# Alembic (keep versions!)
+alembic.ini
+# DO NOT IGNORE alembic/ or alembic/versions/
+
+# Byte-compiled / cache
+*.pyo
+*.pyd
+*.pyc
+
+# OS files
+.DS_Store
+Thumbs.db
