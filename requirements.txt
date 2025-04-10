@@ -4,3 +4,4 @@ sqlmodel
 sqlalchemy>=1.4
 asyncpg
 pydantic_settings
+httpx
