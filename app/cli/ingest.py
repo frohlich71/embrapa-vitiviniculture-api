@@ -1,10 +1,11 @@
 import typer
 from sqlmodel import Session
-from app.db.session import engine
 
+from app.db.session import engine
 from app.services.embrapa.production_ingestor import ProductionIngestor
 
 app = typer.Typer()
+
 
 @app.command()
 def run(source: str):
@@ -12,7 +13,8 @@ def run(source: str):
         if source == "production":
             ProductionIngestor().ingest(session)
         else:
-            print(f"🚫 Unsupported source: {source}")
+            print(f"Unsupported source: {source}")
+
 
 if __name__ == "__main__":
     app()

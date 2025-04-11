@@ -26,6 +26,7 @@ def db_session():
 def override_session(db_session):
     def _override():
         yield db_session
+
     app.dependency_overrides[get_session] = _override
     yield
     app.dependency_overrides.clear()

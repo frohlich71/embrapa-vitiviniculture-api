@@ -1,5 +1,7 @@
-from sqlmodel import Session, select, delete
+from sqlmodel import Session, delete, select
+
 from app.models.production import Production, ProductionCreate
+
 
 def create_production(session: Session, data: ProductionCreate) -> Production:
     """
@@ -11,13 +13,17 @@ def create_production(session: Session, data: ProductionCreate) -> Production:
     session.refresh(prod)
     return prod
 
+
 def list_productions(session: Session) -> list[Production]:
     """
     Retrieve all production records from the database.
     """
     return session.exec(select(Production)).all()
 
-def get_by_year_and_product(session: Session, year: int, product: str) -> Production | None:
+
+def get_by_year_and_product(
+    session: Session, year: int, product: str
+) -> Production | None:
     """
     Check if a production record already exists for the given year and product.
     """
@@ -25,6 +31,7 @@ def get_by_year_and_product(session: Session, year: int, product: str) -> Produc
         (Production.year == year) & (Production.product == product)
     )
     return session.exec(statement).first()
+
 
 def clear_production(session: Session) -> None:
     """

@@ -1,9 +1,11 @@
 from app.services.embrapa.production_ingestor import ProductionIngestor
 
+
 def test_fetch_csv():
     df = ProductionIngestor().fetch_csv()
     assert not df.empty
     assert "produto" in df.columns
+
 
 def test_reshape():
     ingestor = ProductionIngestor()
