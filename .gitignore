@@ -15,10 +15,6 @@ __pycache__/
 venv/
 .env/
 
-# Alembic (keep versions!)
-alembic.ini
-# DO NOT IGNORE alembic/ or alembic/versions/
-
 # Byte-compiled / cache
 *.pyo
 *.pyd

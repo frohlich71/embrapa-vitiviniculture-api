@@ -1,16 +1,18 @@
 import abc
+import os
+from io import StringIO
+
 import httpx
 import pandas as pd
-from io import StringIO
+
 
 class EmbrapaBaseIngestor(abc.ABC):
     """
     Abstract base class for Embrapa data ingestion.
     """
 
-    BASE_URL = "http://vitibrasil.cnpuv.embrapa.br"
+    BASE_URL = os.getenv("EMBRAPA_BASE_URL", "http://vitibrasil.cnpuv.embrapa.br")
     CSV_PATH: str  # to be defined in subclasses
-    id_column: str = "produto"
 
     def fetch_csv(self) -> pd.DataFrame:
         """
@@ -20,23 +22,19 @@ class EmbrapaBaseIngestor(abc.ABC):
         response = httpx.get(full_url)
         response.raise_for_status()
         df = pd.read_csv(StringIO(response.text), sep=";", encoding="latin1")
-        print(f"✅ Loaded CSV: {full_url} with shape: {df.shape}")
+        print(f"Loaded CSV: {full_url} with shape: {df.shape}")
         return df
 
+    @abc.abstractmethod
     def reshape(self, df: pd.DataFrame) -> pd.DataFrame:
         """
         Convert wide format to long format (year-wise pivot).
         """
-        id_vars = [self.id_column]
-        value_vars = [col for col in df.columns if col.isdigit()]
-        melted = df.melt(id_vars=id_vars, value_vars=value_vars,
-                         var_name="ano", value_name="quantidade_litros")
-        print(f"🔄 Transformed shape: {melted.shape}")
-        return melted
+        raise NotImplementedError("Subclasses must implement the reshape method.")
 
     @abc.abstractmethod
     def ingest(self, session):
         """
         Abstract method to implement ingestion into the database.
         """
-        pass
+        raise NotImplementedError("Subclasses must implement the ingest method.")

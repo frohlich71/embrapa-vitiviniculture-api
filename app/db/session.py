@@ -1,11 +1,15 @@
-from sqlmodel import create_engine, Session
+from sqlmodel import Session, create_engine
+
 from app.core.config import settings
 
 # Create the database engine
 engine = create_engine(
     settings.DATABASE_URL,
-    connect_args={"check_same_thread": False} if "sqlite" in settings.DATABASE_URL else {}
+    connect_args=(
+        {"check_same_thread": False} if "sqlite" in settings.DATABASE_URL else {}
+    ),
 )
+
 
 def get_session():
     """
