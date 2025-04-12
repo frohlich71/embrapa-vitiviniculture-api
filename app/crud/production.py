@@ -23,7 +23,7 @@ def list_productions(session: Session) -> list[Production]:
 
 def get_by_year_and_product(
     session: Session, year: int, product: str
-) -> Production | None:
+) -> Production:
     """
     Check if a production record already exists for the given year and product.
     """
