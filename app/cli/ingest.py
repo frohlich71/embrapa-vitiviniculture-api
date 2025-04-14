@@ -2,6 +2,7 @@ import typer
 from sqlmodel import Session
 
 from app.db.session import engine
+from app.services.embrapa.processing_ingestor import ProcessingIngestor
 from app.services.embrapa.production_ingestor import ProductionIngestor
 from app.services.embrapa.commercialization_ingestor import CommercializationIngestor
 
@@ -15,8 +16,10 @@ def run(source: str):
             ProductionIngestor().ingest(session)
         elif source == "commercialization":
             CommercializationIngestor().ingest(session)
+        elif source == "processing":
+            ProcessingIngestor().ingest(session)
         else:
-            print(f"Unsupported source: {source}")
+            print("Unsupported source: {source}")
 
 
 if __name__ == "__main__":
