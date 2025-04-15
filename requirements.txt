@@ -7,7 +7,7 @@ pandas~=2.2.3
 alembic~=1.15.2
 typer~=0.15.2
 black
-
+uvicorn
 pydantic-settings~=2.8.1
 sqlalchemy~=2.0.40
 pytest~=8.3.5

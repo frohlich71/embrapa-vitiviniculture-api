@@ -50,11 +50,13 @@ class ProcessingIngestor(EmbrapaBaseIngestor):
 
                     qtd = float(str(row["quantidade_kg"]).replace(",", ".")) if is_valid_qtd else 0.0
 
+
+
                     data = ProcessingCreate(
                         year=year,
                         cultivate=cultivate,
                         quantity_kg=qtd,
-                        path=path
+                        path=path.split("/")[1].split(".")[0]
                     )
                     create_processing(session, data)
                     n_inserts += 1

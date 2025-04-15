@@ -22,6 +22,12 @@ def list_processing(session: Session) -> Sequence[Processing]:
     return session.exec(select(Processing)).all()
 
 
+def list_processing_by_path(session: Session, path: str) -> Sequence[Processing]:
+    """
+    Retrieve all processing records from the database by path.
+    """
+    return session.exec(select(Processing).where(Processing.path == path)).all()
+
 def get_by_year_and_cultivate_and_path(session: Session, year: int, cultivate: str, path: str) -> Processing:
     """
     Check if a processing record already exists for the given year and product.
