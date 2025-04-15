@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from sqlmodel import Session, delete, select
 
 from app.models.commercialization import Commercialization, CommercializationCreate

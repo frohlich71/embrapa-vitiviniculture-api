@@ -21,6 +21,9 @@ makemigrations:
 ingest-production:
 	$(PYTHON) -m $(MODULE) production
 
+ingest-processing:
+	$(PYTHON) -m $(MODULE) processing
+
 # Instalação de dependências
 install:
 	pip install -r requirements.txt
