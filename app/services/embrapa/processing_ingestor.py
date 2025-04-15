@@ -1,13 +1,13 @@
 import pandas as pd
 from sqlmodel import Session
 
-from app.crud.processing import get_by_year_and_cultivate, create_processing
+from app.crud.processing import get_by_year_and_cultivate_and_path, create_processing
 from app.models.processing import ProcessingCreate
 from app.services.embrapa.base_ingestor import EmbrapaBaseIngestor
 
 
 class ProcessingIngestor(EmbrapaBaseIngestor):
-    CSV_PATH = "download/ProcessaViniferas.csv"
+    PATHS = ["download/ProcessaViniferas.csv", "download/ProcessaAmericanas.csv", "download/ProcessaMesa.csv", "download/ProcessaSemclass.csv"]	
 
     def reshape(self, df: pd.DataFrame) -> pd.DataFrame:
         id_vars = ["cultivar"]
@@ -22,39 +22,48 @@ class ProcessingIngestor(EmbrapaBaseIngestor):
         return melted
 
     def ingest(self, session: Session):
-        df = self.fetch_csv()
-        melted = self.reshape(df)
-
         n_inserts = 0
         n_skipped = 0
+        
+        for path in self.PATHS:
+            separator =  ";" if path == "download/ProcessaViniferas.csv" else "\t"
 
-        for idx, row in melted.iterrows():
-            try:
-                year = int(row["ano"])
-                cultivate = row["cultivar"]
+            df = self.fetch_csv(path, separator)
+            melted = self.reshape(df)
 
-                if get_by_year_and_cultivate(session, year, cultivate):
-                    print(f"Skipping duplicate: {year} - {cultivate}")
-                    n_skipped += 1
-                    continue
+            for idx, row in melted.iterrows():
+                try:
+                    year = int(row["ano"])
+                    cultivate = row["cultivar"]
 
-                is_valid_qtd = True
+                    if get_by_year_and_cultivate_and_path(session, year, cultivate, path):
+                        print(f"Skipping duplicate: {year} - {cultivate} - {path}")
+                        n_skipped += 1
+                        continue
 
-                if row["quantidade_kg"] == "nd" or row["quantidade_kg"] == "*" or pd.isna(row["quantidade_kg"]):
-                    is_valid_qtd = False
+                    is_valid_qtd = True
 
-                qtd = float(str(row["quantidade_kg"]).replace(",", ".")) if is_valid_qtd else 0.0
+                    valores_invalidos = {"nd", "+", "*"}
 
+                    if row["quantidade_kg"] in valores_invalidos or pd.isna(row["quantidade_kg"]):
+                        is_valid_qtd = False
 
-                data = ProcessingCreate(
-                    year=year,
-                    cultivate=cultivate,
-                    quantity_kg=qtd
-                )
-                create_processing(session, data)
-                n_inserts += 1
+                    qtd = float(str(row["quantidade_kg"]).replace(",", ".")) if is_valid_qtd else 0.0
 
-            except (ValueError, KeyError, TypeError) as e:
-                print(f"Error on row {idx} — data: {row.to_dict()} — {e}")
+                    data = ProcessingCreate(
+                        year=year,
+                        cultivate=cultivate,
+                        quantity_kg=qtd,
+                        path=path
+                    )
+                    create_processing(session, data)
+                    n_inserts += 1
+
+                except (ValueError, KeyError, TypeError) as e:
+                    print(f"Error on row {idx} — data: {row.to_dict()} — {e}")
 
         print(f"Ingestion completed: {n_inserts} inserted, {n_skipped} skipped.")
+
+
+
+

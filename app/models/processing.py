@@ -6,6 +6,7 @@ class ProcessingBase(SQLModel):
     year: int = Field(index=True)
     cultivate: str = Field(index=True)
     quantity_kg: float
+    path: str = Field(index=True)
 
 class Processing(ProcessingBase, table=True):
     """Database model representing the processing table."""

@@ -22,12 +22,12 @@ def list_processing(session: Session) -> Sequence[Processing]:
     return session.exec(select(Processing)).all()
 
 
-def get_by_year_and_cultivate(session: Session, year: int, cultivate: str) -> Processing:
+def get_by_year_and_cultivate_and_path(session: Session, year: int, cultivate: str, path: str) -> Processing:
     """
     Check if a processing record already exists for the given year and product.
     """
     statement = select(Processing).where(
-        (Processing.year == year) & (Processing.cultivate == cultivate)
+        (Processing.year == year) & (Processing.cultivate == cultivate) & (Processing.path == path)
     )
     return session.exec(statement).first()
 
