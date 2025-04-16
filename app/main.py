@@ -1,8 +1,9 @@
+import os
 from fastapi import FastAPI
 from app.api.v1 import production, commercialization, processing, debug
 
 app = FastAPI(title="Embrapa Vitiviniculture API")
-
+print("USANDO BANCO:", os.path.abspath("local.db"))
 app.include_router(production.router, prefix="/api/v1/production", tags=["Production"])
 
 app.include_router(commercialization.router, prefix="/api/v1/commercialization", tags=["Commercialization"])

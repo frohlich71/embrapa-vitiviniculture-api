@@ -28,6 +28,7 @@ ingest-commercialization:
 	$(PYTHON) -m $(MODULE) commercialization
 
 init:
+	@echo "MIGRANDO NO BANCO: $(pwd)/local.db"
 	make migrate
 	make ingest-production
 	make ingest-processing
