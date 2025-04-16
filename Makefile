@@ -31,6 +31,7 @@ ingest-commercialization:
 	$(PYTHON) -m $(module) commercialization
 
 init:
+	make migrate
 	make ingest-production
 	make ingest-processing
 	make ingest-commercialization
