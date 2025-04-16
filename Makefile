@@ -28,7 +28,7 @@ ingest-processing:
 	$(PYTHON) -m $(MODULE) processing
 
 ingest-commercialization:
-	$(PYTHON) -m $(module) commercialization
+	$(PYTHON) -m $(MODULE) commercialization
 
 init:
 	make migrate
