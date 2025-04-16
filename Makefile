@@ -29,6 +29,7 @@ ingest-commercialization:
 
 init:
 	make migrate
+	sqlite3 local.db ".tables"
 	make ingest-production
 	make ingest-processing
 	make ingest-commercialization
