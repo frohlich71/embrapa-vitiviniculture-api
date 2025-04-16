@@ -5,6 +5,9 @@ MODULE=app.cli.ingest
 run:
 	PYTHONPATH=. fastapi dev app/main.py
 
+run-prod:
+	PYTHONPATH=. python app/main.py
+
 test:
 	pytest --cov=app tests/
 
@@ -23,6 +26,15 @@ ingest-production:
 
 ingest-processing:
 	$(PYTHON) -m $(MODULE) processing
+
+ingest-commercialization:
+	$(PYTHON) -m $(module) commercialization
+
+init:
+	make ingest-production
+	make ingest-processing
+	make ingest-commercialization
+	make run-prod
 
 # Instalação de dependências
 install:
