@@ -27,12 +27,16 @@ ingest-processing:
 ingest-commercialization:
 	$(PYTHON) -m $(MODULE) commercialization
 
+ingest-importation:
+	$(PYTHON) -m $(MODULE) importation
+
 init:
 	@echo "MIGRANDO NO BANCO: $(pwd)/local.db"
 	make migrate
 	make ingest-production
 	make ingest-processing
 	make ingest-commercialization
+	make ingest-importation
 # Instalação de dependências
 install:
 	pip install -r requirements.txt

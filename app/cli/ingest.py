@@ -5,6 +5,7 @@ from app.db.session import engine
 from app.services.embrapa.processing_ingestor import ProcessingIngestor
 from app.services.embrapa.production_ingestor import ProductionIngestor
 from app.services.embrapa.commercialization_ingestor import CommercializationIngestor
+from app.services.embrapa.importation_ingestor import ImporttationIngestor
 
 app = typer.Typer()
 
@@ -18,6 +19,8 @@ def run(source: str):
             CommercializationIngestor().ingest(session)
         elif source == "processing":
             ProcessingIngestor().ingest(session)
+        elif source == "importation":
+            ImporttationIngestor().ingest(session)
         else:
             print("Unsupported source: {source}")
 
