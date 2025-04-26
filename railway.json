@@ -4,6 +4,6 @@
     "builder": "NIXPACKS"
   },
   "deploy": {
-    "preDeployCommand": ["make init && ls -lh app/db/local.db || echo 'Arquivo não encontrado'"],
+    "preDeployCommand": ["mkdir -p /app/db && make init && ls -lh app/db/local.db || echo 'Arquivo não encontrado'"],
     "startCommand": "hypercorn app.main:app --bind \"[::]:$PORT\""  }
 }
