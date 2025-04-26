@@ -30,13 +30,7 @@ ingest-commercialization:
 ingest-importation:
 	$(PYTHON) -m $(MODULE) importation
 
-test-create-table:
-	$(PYTHON) -m app.tests.create_table.py
-
 init:
-	mkdir -p /app/db
-	@echo "MIGRANDO NO BANCO: $(pwd)/app/db/local.db"
-	$(PYTHON) force_create_db.py
 	make migrate
 	make ingest-production
 	make ingest-processing
