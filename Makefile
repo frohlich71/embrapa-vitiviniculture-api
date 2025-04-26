@@ -36,7 +36,7 @@ test-create-table:
 init:
 	mkdir -p /app/db
 	@echo "MIGRANDO NO BANCO: $(pwd)/app/db/local.db"
-	make test-create-table
+	$(PYTHON) force_create_db.py
 	make migrate
 	make ingest-production
 	make ingest-processing
