@@ -32,6 +32,7 @@ ingest-importation:
 
 init:
 	@echo "MIGRANDO NO BANCO: $(pwd)/local.db"
+	mkdir -p db
 	make migrate
 	make ingest-production
 	make ingest-processing
