@@ -5,7 +5,7 @@ from app.db.session import engine
 from app.services.embrapa.processing_ingestor import ProcessingIngestor
 from app.services.embrapa.production_ingestor import ProductionIngestor
 from app.services.embrapa.commercialization_ingestor import CommercializationIngestor
-from app.services.embrapa.importation_ingestor import ImporttationIngestor
+from app.services.embrapa.importation_ingestor import ImportationIngestor
 from app.services.embrapa.exportation_ingestor import ExportationIngestor
 
 app = typer.Typer()
@@ -21,7 +21,7 @@ def run(source: str):
         elif source == "processing":
             ProcessingIngestor().ingest(session)
         elif source == "importation":
-            ImporttationIngestor().ingest(session)
+            ImportationIngestor().ingest(session)
         elif source == "exportation":
             ExportationIngestor().ingest(session)
         else:
