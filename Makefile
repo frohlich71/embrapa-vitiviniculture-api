@@ -31,8 +31,7 @@ ingest-importation:
 	$(PYTHON) -m $(MODULE) importation
 
 init:
-	@echo "MIGRANDO NO BANCO: $(pwd)/local.db"
-	mkdir -p db
+	@echo "MIGRANDO NO BANCO: $(pwd)/app/db/local.db"
 	make migrate
 	make ingest-production
 	make ingest-processing
