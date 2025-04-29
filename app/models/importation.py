@@ -7,7 +7,6 @@ class ImportationBase(SQLModel):
     year: int = Field(index=True)
     country: str = Field(index=True)
     quantity_kg: float
-    value: float
     path: str = Field(index=True)
 
 
