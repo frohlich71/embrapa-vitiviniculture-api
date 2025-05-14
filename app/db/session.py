@@ -1,19 +1,14 @@
-from sqlmodel import Session, create_engine
-
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 from app.core.config import settings
 
-# Create the database engine
 engine = create_engine(
     settings.DATABASE_URL,
-    connect_args=(
-        {"check_same_thread": False} if "sqlite" in settings.DATABASE_URL else {}
-    ),
+    pool_pre_ping=True
 )
 
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 def get_session():
-    """
-    Dependency function to yield a SQLModel session for database access.
-    """
-    with Session(engine) as session:
+    with SessionLocal() as session:
         yield session
