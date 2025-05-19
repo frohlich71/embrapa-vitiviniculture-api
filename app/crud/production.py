@@ -1,3 +1,5 @@
+from typing import Sequence
+
 from sqlmodel import Session, delete, select
 
 from app.models.production import Production, ProductionCreate
@@ -14,12 +16,13 @@ def create_production(session: Session, data: ProductionCreate) -> Production:
     return prod
 
 
-def list_productions(session: Session) -> list[Production]:
+def list_productions(session: Session) -> Sequence[Production]:
     """
     Retrieve all production records from the database.
     """
-    return session.exec(select(Production)).all()
-
+    statement = select(Production)
+    result = session.execute(statement)
+    return result.scalars().all()
 
 def get_by_year_and_product(
     session: Session, year: int, product: str

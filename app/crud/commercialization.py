@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Sequence
+
 from sqlmodel import Session, delete, select
 
 from app.models.commercialization import Commercialization, CommercializationCreate
@@ -16,11 +18,13 @@ def create_commercialization(session: Session, data: CommercializationCreate) ->
     return prod
 
 
-def list_commercializations(session: Session) -> list[Commercialization]:
+def list_commercializations(session: Session) -> Sequence[Commercialization]:
     """
     Retrieve all commercialization records from the database.
     """
-    return session.exec(select(Commercialization)).all()
+    statement = select(Commercialization)
+    result = session.execute(statement)
+    return result.scalars().all()
 
 
 def get_by_year_and_product(
