@@ -12,7 +12,7 @@ class ExportationIngestor(EmbrapaBaseIngestor):
              "download/ExpUva.csv", "download/ExpSuco.csv"]
 
     def reshape(self, df: pd.DataFrame) -> pd.DataFrame:
-        id_vars = ["País"]  # Alterado para "pais"
+        id_vars = ["pais"]  # Alterado para "pais"
         value_vars = [col for col in df.columns if col.isdigit()]
 
         # Transformação das colunas de 'ano' e 'quantidade'
