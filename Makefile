@@ -30,12 +30,16 @@ ingest-commercialization:
 ingest-importation:
 	$(PYTHON) -m $(MODULE) importation
 
+ingest-exportation:
+	$(PYTHON) -m $(MODULE) exportation
+
 init:
 	make migrate
 	make ingest-production
 	make ingest-processing
 	make ingest-commercialization
 	make ingest-importation
+	make ingest-exportation
 # Instalação de dependências
 install:
 	pip install -r requirements.txt
