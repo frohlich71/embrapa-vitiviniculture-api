@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/embrapa_vitiviniculture
+      - ALLOW_REINGEST=false
+    volumes:
+      - ./app:/app/app
+      - ./migrations:/app/migrations
+      - ./download:/app/download
+    restart: always
+    command: >
+      sh -c "alembic upgrade head && 
+             uvicorn app.main:app --host 0.0.0.0 --port 8000"
+
+  db:
+    image: postgres:15
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=embrapa_vitiviniculture
+    restart: always
+    ports:
+      - "5432:5432"
+
+volumes:
+  postgres_data:
