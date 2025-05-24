@@ -7,23 +7,25 @@ from app.services.embrapa.base_ingestor import EmbrapaBaseIngestor
 
 
 class ImportationIngestor(EmbrapaBaseIngestor):
-    PATHS = ["download/ImpVinhos.csv", "download/ImpEspumantes.csv",
-             "download/ImpFrescas.csv", "download/ImpPAssas.csv", "download/ImpSuco.csv"]
+    PATHS = [
+        "download/ImpVinhos.csv",
+        "download/ImpEspumantes.csv",
+        "download/ImpFrescas.csv",
+        "download/ImpPassas.csv",
+        "download/ImpSuco.csv"
+    ]
 
     def reshape(self, df: pd.DataFrame) -> pd.DataFrame:
-        id_vars = ["pais"]  # Alterado para "pais"
-        value_vars = [col for col in df.columns if col.isdigit()]
+        id_vars = ["País"]  # Mantemos "País" como identificador
+        value_vars = [col for col in df.columns if col.isdigit()]  # Só anos
 
-        # Transformação das colunas de 'ano' e 'quantidade'
+        # Transformação dos dados
         melted = df.melt(
             id_vars=id_vars,
             value_vars=value_vars,
             var_name="ano",
             value_name="quantidade",
         )
-
-        # Adicionada uma nova coluna de 'valores'
-        melted["valores"] = df["valor"]
 
         print(f"Transformed shape: {melted.shape}")
         return melted
@@ -41,36 +43,29 @@ class ImportationIngestor(EmbrapaBaseIngestor):
             for idx, row in melted.iterrows():
                 try:
                     year = int(row["ano"])
-                    country = row["pais"]
+                    country = row["País"]
 
-                    # Verifica se já existe o dado para o ano, país e arquivo
+                    # Verifica se já existe
                     if get_by_year_and_country_and_path(session, year, country, path):
                         print(
                             f"Skipping duplicate: {year} - {country} - {path}")
                         n_skipped += 1
                         continue
 
-                    is_valid_quantidade = True
-                    is_valid_valor = True
-
                     valores_invalidos = {"nd", "+", "*"}
-                    if row["quantidade"] in valores_invalidos or pd.isna(row["quantidade"]):
-                        is_valid_quantidade = False
-                    if row["valores"] in valores_invalidos or pd.isna(row["valores"]):
-                        is_valid_valor = False
+                    quantidade_raw = str(row["quantidade"])
 
-                    # Converte as quantidades e valores (presumindo que os dados são numéricos)
-                    quantidade = float(str(row["quantidade"]).replace(
-                        ",", ".")) if is_valid_quantidade else 0.0
-                    valor = float(str(row["valores"]).replace(
-                        ",", ".")) if is_valid_valor else 0.0
+                    # Checagem de validade
+                    if quantidade_raw in valores_invalidos or pd.isna(row["quantidade"]):
+                        quantidade = 0.0
+                    else:
+                        quantidade = float(quantidade_raw.replace(",", "."))
 
-                    # Cria o objeto de dados para inserção
+                    # Criação do registro
                     data = ImportationCreate(
                         year=year,
                         country=country,
-                        quantity=quantidade,
-                        value=valor,
+                        quantity_kg=quantidade,
                         path=path.split("/")[1].split(".")[0]
                     )
                     create_importation(session, data)

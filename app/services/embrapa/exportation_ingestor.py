@@ -1,7 +1,8 @@
 import pandas as pd
 from sqlmodel import Session
 
-from app.crud.importation import get_by_year_and_country_and_path, create_importation
+from app.crud.exportation import create_exportation
+from app.crud.importation import get_by_year_and_country_and_path
 from app.models.exportation import ExportationCreate
 from app.services.embrapa.base_ingestor import EmbrapaBaseIngestor
 

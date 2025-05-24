@@ -1,7 +1,6 @@
 fastapi[standard]~=0.115.12
 sqlmodel~=0.0.24
-asyncpg
-pydantic_settings
+pydantic_settings~=2.8.1
 httpx~=0.28.1
 pandas~=2.2.3
 alembic~=1.15.2
@@ -12,3 +11,5 @@ pydantic-settings~=2.8.1
 sqlalchemy~=2.0.40
 pytest~=8.3.5
 hypercorn
+python-dotenv~=1.1.0
+psycopg[binary]

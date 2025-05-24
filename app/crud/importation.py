@@ -19,14 +19,15 @@ def list_importation(session: Session) -> Sequence[Importation]:
     """
     Retrieve all importation records from the database.
     """
-    return session.exec(select(Importation)).all()
+    statement = select(Importation)
+    result = session.execute(statement)
+    return result.scalars().all()
 
 
-def list_importation_by_path(session: Session, path: str) -> Sequence[Importation]:
-    """
-    Retrieve all importation records from the database by path.
-    """
-    return session.exec(select(Importation).where(Importation.path == path)).all()
+def list_importation_by_path(session, path):
+    statement = select(Importation).where(Importation.path == path)
+    result = session.execute(statement)
+    return result.scalars().all()
 
 
 def get_by_year_and_country_and_path(session: Session, year: int, country: str, path: str) -> Importation:

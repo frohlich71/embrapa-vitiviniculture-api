@@ -4,6 +4,7 @@ from alembic import context
 from sqlalchemy import engine_from_config, pool
 from sqlmodel import SQLModel
 
+
 from app.core.config import settings
 from app.models.production import Production
 from app.models.commercialization import Commercialization

@@ -19,14 +19,18 @@ def list_processing(session: Session) -> Sequence[Processing]:
     """
     Retrieve all processing records from the database.
     """
-    return session.exec(select(Processing)).all()
+    statement = select(Processing)
+    result = session.execute(statement)
+    return result.scalars().all()
 
 
 def list_processing_by_path(session: Session, path: str) -> Sequence[Processing]:
     """
     Retrieve all processing records from the database by path.
     """
-    return session.exec(select(Processing).where(Processing.path == path)).all()
+    statement = select(Processing).where(Processing.path == path)
+    result = session.execute(statement)
+    return result.scalars().all()
 
 def get_by_year_and_cultivate_and_path(session: Session, year: int, cultivate: str, path: str) -> Processing:
     """
