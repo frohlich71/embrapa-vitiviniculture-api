@@ -1,27 +1,35 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session
 
 from app.db.session import get_session
-from app.processing.ingestor import ProcessingIngestor
-from app.processing.models import ProcessingRead
 from app.processing.crud import (
-    list_processing,
     clear_processing,
+    list_processing,
     list_processing_by_path,
 )
+from app.processing.ingestor import ProcessingIngestor
+from app.processing.models import ProcessingRead
 
 router = APIRouter()
 
 
 @router.get("/", response_model=list[ProcessingRead])
-def read_all(session: Session = Depends(get_session)):
+def read_all(session: Session = Depends(get_session), page: int = 1):
     """
     Endpoint to list all processing records.
     """
-    return list_processing(session)
+    if page < 1:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Page number must be greater than 0.",
+        )
+
+    limit = 100
+    offset = (page - 1) * limit
+    return list_processing(session, limit, offset)
 
 
-@router.get("/{path}", response_model=list[ProcessingRead])
+@router.get("/{category}/{subcategory}", response_model=list[ProcessingRead])
 def read_by_path(path: str, session: Session = Depends(get_session)):
     """
     Endpoint to list all processing records by the csv path.

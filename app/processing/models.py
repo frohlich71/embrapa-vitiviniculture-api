@@ -1,5 +1,6 @@
 from typing import Optional
-from sqlmodel import SQLModel, Field
+
+from sqlmodel import Field, SQLModel
 
 
 class ProcessingBase(SQLModel):
@@ -7,8 +8,9 @@ class ProcessingBase(SQLModel):
 
     year: int = Field(index=True)
     cultivate: str = Field(index=True)
-    quantity_kg: float
-    path: str = Field(index=True)
+    quantity_kg: int
+    category: str = Field(index=True)
+    subcategory: str = Field(index=True)
 
 
 class Processing(ProcessingBase, table=True):

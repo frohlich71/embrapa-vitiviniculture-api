@@ -1,9 +1,16 @@
+import logging
+
 import pandas as pd
 from sqlmodel import Session
 
-from app.processing.crud import get_by_year_and_cultivate_and_path, create_processing
+from app.processing.crud import (
+    create_processing,
+    get_by_year_and_cultivate_and_category,
+)
 from app.processing.models import ProcessingCreate
 from app.services.embrapa.base_ingestor import EmbrapaBaseIngestor
+
+logger = logging.getLogger(__name__)
 
 
 class ProcessingIngestor(EmbrapaBaseIngestor):
@@ -14,65 +21,105 @@ class ProcessingIngestor(EmbrapaBaseIngestor):
         "download/ProcessaSemclass.csv",
     ]
 
-    def reshape(self, df: pd.DataFrame) -> pd.DataFrame:
-        id_vars = ["cultivar"]
-        value_vars = [col for col in df.columns if col.isdigit()]
-        melted = df.melt(
-            id_vars=id_vars,
-            value_vars=value_vars,
-            var_name="ano",
-            value_name="quantidade_kg",
-        )
-        print(f"Transformed shape: {melted.shape}")
-        return melted
+    CATEGORIES = {
+        "download/ProcessaViniferas.csv": "VINIFERA",
+        "download/ProcessaAmericanas.csv": "AMERICANAS",
+        "download/ProcessaMesa.csv": "MESA",
+        "download/ProcessaSemclass.csv": "SEM CLASSIFICACAO",
+    }
+
+    SUBCATEGORY_PREFIXES = {
+        "AMERICANAS": {
+            "ti_": "TINTAS",
+            "br_": "BRANCAS E ROSADAS",
+        },
+        "MESA": {
+            "ti_": "TINTAS",
+            "br_": "BRANCAS",
+        },
+        "VINIFERA": {
+            "ti_": "TINTAS",
+            "br_": "BRANCAS E ROSADAS",
+        },
+    }
 
     def ingest(self, session: Session):
-        n_inserts = 0
-        n_skipped = 0
+        n_inserts = n_skipped = 0
 
         for path in self.PATHS:
-            separator = ";" if path == "download/ProcessaViniferas.csv" else "\t"
+            self.CSV_PATH = path
+            category = self.CATEGORIES[path]
+            separator = ";" if "Viniferas" in path else "\t"
 
             df = self.fetch_csv(path, separator)
-            melted = self.reshape(df)
+            melted = self._prepare_dataframe(df, category)
 
-            for idx, row in melted.iterrows():
+            for _, row in melted.iterrows():
+                if get_by_year_and_cultivate_and_category(
+                    session,
+                    row["ano"],
+                    row["cultivar"],
+                    row["category"],
+                    row["subcategory"],
+                ):
+                    n_skipped += 1
+                    continue
+
                 try:
-                    year = int(row["ano"])
-                    cultivate = row["cultivar"]
-
-                    if get_by_year_and_cultivate_and_path(
-                        session, year, cultivate, path
-                    ):
-                        print(f"Skipping duplicate: {year} - {cultivate} - {path}")
-                        n_skipped += 1
-                        continue
-
-                    is_valid_qtd = True
-
-                    valores_invalidos = {"nd", "+", "*"}
-
-                    if row["quantidade_kg"] in valores_invalidos or pd.isna(
-                        row["quantidade_kg"]
-                    ):
-                        is_valid_qtd = False
-
-                    qtd = (
-                        float(str(row["quantidade_kg"]).replace(",", "."))
-                        if is_valid_qtd
-                        else 0.0
-                    )
-
                     data = ProcessingCreate(
-                        year=year,
-                        cultivate=cultivate,
-                        quantity_kg=qtd,
-                        path=path.split("/")[1].split(".")[0],
+                        year=row["ano"],
+                        cultivate=row["cultivar"],
+                        quantity_kg=row["quantidade_kg"],
+                        category=row["category"],
+                        subcategory=row["subcategory"],
                     )
                     create_processing(session, data)
                     n_inserts += 1
+                except Exception as e:
+                    logger.warning(f"Error inserting row — {row.to_dict()} — {e}")
 
-                except (ValueError, KeyError, TypeError) as e:
-                    print(f"Error on row {idx} — data: {row.to_dict()} — {e}")
+        logger.info(
+            f"Processing ingestion complete: {n_inserts} inserted, {n_skipped} skipped."
+        )
 
-        print(f"Ingestion completed: {n_inserts} inserted, {n_skipped} skipped.")
+    def _prepare_dataframe(self, df: pd.DataFrame, category: str) -> pd.DataFrame:
+        df = df.drop(columns=["id"], errors="ignore")
+
+        year_cols = [col for col in df.columns if col.isdigit()]
+        df = df.melt(
+            id_vars=["cultivar", "control"],
+            value_vars=year_cols,
+            var_name="ano",
+            value_name="quantidade_kg",
+        )
+
+        df = df.dropna(subset=["ano", "quantidade_kg"])
+        df["ano"] = df["ano"].astype(int)
+
+        df["quantidade_kg"] = (
+            df["quantidade_kg"]
+            .astype(str)
+            .str.lower()
+            .str.replace(",", ".", regex=False)
+            .apply(lambda x: x if x not in {"nd", "+", "*"} else "0")
+            .astype(float)
+            .astype(int)
+        )
+
+        df["category"] = category
+        df["subcategory"] = df["control"].apply(
+            lambda c: self._extract_subcategory(category, c)
+        )
+        df = df[
+            ~((df["subcategory"] == "") & (df["category"] != "SEM CLASSIFICACAO"))
+        ].drop(columns=["control"])
+
+        logger.info(f"Transformed {category} data: {df.shape}")
+        return df
+
+    def _extract_subcategory(self, category: str, control_value: str) -> str:
+        prefixes = self.SUBCATEGORY_PREFIXES.get(category, {})
+        for prefix, subcat in prefixes.items():
+            if control_value.startswith(prefix):
+                return subcat
+        return ""
