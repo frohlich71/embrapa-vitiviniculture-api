@@ -39,7 +39,8 @@ def get_by(session: Session, year: int, product: str, category: str) -> Producti
 
 def clear_production(session: Session) -> None:
     """
-    Remove todos os registros da tabela production.
+    Clear all production records from the database.
     """
-    session.exec(delete(Production))
+    statement = delete(Production)
+    session.exec(statement)
     session.commit()
