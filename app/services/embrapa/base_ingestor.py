@@ -1,51 +1,52 @@
 import abc
 import os
+import logging
 from io import StringIO
 
 import httpx
 import pandas as pd
 
+logger = logging.getLogger(__name__)
+
 
 class EmbrapaBaseIngestor(abc.ABC):
     """
-    Abstract base class for Embrapa data ingestion.
+    Base class for ingesting Embrapa CSV data.
     """
     BASE_URL = os.getenv("EMBRAPA_BASE_URL", "http://vitibrasil.cnpuv.embrapa.br")
-    CSV_PATH: str # to be defined in subclasses
+    CSV_PATH: str  # should be defined in subclasses
 
     def fetch_csv(self, url: str = None, separator: str = ";") -> pd.DataFrame:
         """
-        Download CSV from the given URL and return as a DataFrame.
-        Fallback: if download fails, load from local 'resources/' folder.
+        Download CSV from EMBRAPA or load from local 'downloads' folder.
+        Priority:
+        1. Load from self.CSV_PATH if it exists.
+        2. Try to download from remote URL.
         """
+        if os.path.exists(self.CSV_PATH):
+            return self._load_csv(self.CSV_PATH, separator)
+
         path = url or self.CSV_PATH
         full_url = f"{self.BASE_URL}/{path}"
+
         try:
             response = httpx.get(full_url, timeout=10.0, trust_env=False)
             response.raise_for_status()
-            df = pd.read_csv(StringIO(response.text), sep=separator, encoding="latin1")
-            print(f"Loaded CSV: {full_url} with shape: {df.shape}")
+            df = pd.read_csv(StringIO(response.text), sep=separator, encoding="utf-8")
+            logger.info(f"Downloaded CSV from {full_url} (shape={df.shape})")
             return df
         except Exception as e:
-            print(f"[WARN] Falha ao baixar CSV de {full_url}: {e}")
-            print(os.path.basename(path))
-            local_path = os.path.join(os.path.dirname(__file__), "..", "..", "resources", os.path.basename(path))
-            local_path = os.path.abspath(local_path)
-            print(f"Tentando carregar CSV local: {local_path}")
-            df = pd.read_csv(local_path, sep=separator, encoding="latin1")
-            print(f"Loaded local CSV: {local_path} with shape: {df.shape}")
-            return df
+            logger.warning(f"Failed to fetch {full_url}: {e}")
+            raise RuntimeError(f"Unable to download CSV from {full_url}")
 
-    @abc.abstractmethod
-    def reshape(self, df: pd.DataFrame) -> pd.DataFrame:
-        """
-        Convert wide format to long format (year-wise pivot).
-        """
-        raise NotImplementedError("Subclasses must implement the reshape method.")
+    def _load_csv(self, filepath: str, separator: str) -> pd.DataFrame:
+        df = pd.read_csv(filepath, sep=separator, encoding="utf-8")
+        logger.info(f"Loaded CSV from {filepath} (shape={df.shape})")
+        return df
 
     @abc.abstractmethod
     def ingest(self, session):
         """
-        Abstract method to implement ingestion into the database.
+        Ingest transformed data into the database.
         """
         raise NotImplementedError("Subclasses must implement the ingest method.")
