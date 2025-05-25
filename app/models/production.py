@@ -1,5 +1,4 @@
 from typing import Optional
-
 from sqlmodel import Field, SQLModel
 
 
@@ -8,7 +7,8 @@ class ProductionBase(SQLModel):
 
     year: int = Field(index=True)
     product: str = Field(index=True)
-    quantity_liters: float
+    quantity_liters: int
+    category: str = Field(index=True)
 
 
 class Production(ProductionBase, table=True):
