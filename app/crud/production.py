@@ -21,17 +21,18 @@ def list_productions(session: Session) -> Sequence[Production]:
     Retrieve all production records from the database.
     """
     statement = select(Production)
-    result = session.execute(statement)
-    return result.scalars().all()
+    result = session.exec(statement)
+    return result.all()
 
-def get_by_year_and_product(
-    session: Session, year: int, product: str
-) -> Production:
+
+def get_by(session: Session, year: int, product: str, category: str) -> Production:
     """
     Check if a production record already exists for the given year and product.
     """
     statement = select(Production).where(
-        (Production.year == year) & (Production.product == product)
+        (Production.year == year)
+        & (Production.product == product)
+        & (Production.category == category)
     )
     return session.exec(statement).first()
 
