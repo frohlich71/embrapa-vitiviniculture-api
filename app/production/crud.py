@@ -2,7 +2,7 @@ from typing import Sequence
 
 from sqlmodel import Session, delete, select
 
-from app.models.production import Production, ProductionCreate
+from app.production.models import Production, ProductionCreate
 
 
 def create_production(session: Session, data: ProductionCreate) -> Production:

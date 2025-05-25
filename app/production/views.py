@@ -2,10 +2,10 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session
 
 from app.core.config import settings
-from app.crud.production import clear_production, list_productions
 from app.db.session import get_session
-from app.models.production import ProductionRead
-from app.services.embrapa.production_ingestor import ProductionIngestor
+from app.production.crud import clear_production, list_productions
+from app.production.ingestor import ProductionIngestor
+from app.production.models import ProductionRead
 
 router = APIRouter()
 

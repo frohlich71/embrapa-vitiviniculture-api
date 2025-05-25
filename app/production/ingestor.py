@@ -1,10 +1,11 @@
 import logging
+
 import numpy as np
 import pandas as pd
 from sqlmodel import Session
 
-from app.crud.production import create_production, get_by
-from app.models.production import ProductionCreate
+from app.production.crud import create_production, get_by
+from app.production.models import ProductionCreate
 from app.services.embrapa.base_ingestor import EmbrapaBaseIngestor
 
 logger = logging.getLogger(__name__)
