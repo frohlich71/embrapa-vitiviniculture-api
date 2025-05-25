@@ -8,8 +8,12 @@ from app.services.embrapa.base_ingestor import EmbrapaBaseIngestor
 
 
 class ExportationIngestor(EmbrapaBaseIngestor):
-    PATHS = ["download/ExpVinho.csv", "download/ExpEspumantes.csv",
-             "download/ExpUva.csv", "download/ExpSuco.csv"]
+    PATHS = [
+        "download/ExpVinho.csv",
+        "download/ExpEspumantes.csv",
+        "download/ExpUva.csv",
+        "download/ExpSuco.csv",
+    ]
 
     def reshape(self, df: pd.DataFrame) -> pd.DataFrame:
         id_vars = ["pais"]  # Alterado para "pais"
@@ -46,8 +50,7 @@ class ExportationIngestor(EmbrapaBaseIngestor):
 
                     # Verifica se já existe o dado para o ano, país e arquivo
                     if get_by_year_and_country_and_path(session, year, country, path):
-                        print(
-                            f"Skipping duplicate: {year} - {country} - {path}")
+                        print(f"Skipping duplicate: {year} - {country} - {path}")
                         n_skipped += 1
                         continue
 
@@ -55,16 +58,24 @@ class ExportationIngestor(EmbrapaBaseIngestor):
                     is_valid_valor = True
 
                     valores_invalidos = {"nd", "+", "*"}
-                    if row["quantidade"] in valores_invalidos or pd.isna(row["quantidade"]):
+                    if row["quantidade"] in valores_invalidos or pd.isna(
+                        row["quantidade"]
+                    ):
                         is_valid_quantidade = False
                     if row["valores"] in valores_invalidos or pd.isna(row["valores"]):
                         is_valid_valor = False
 
                     # Converte as quantidades e valores (presumindo que os dados são numéricos)
-                    quantidade = float(str(row["quantidade"]).replace(
-                        ",", ".")) if is_valid_quantidade else 0.0
-                    valor = float(str(row["valores"]).replace(
-                        ",", ".")) if is_valid_valor else 0.0
+                    quantidade = (
+                        float(str(row["quantidade"]).replace(",", "."))
+                        if is_valid_quantidade
+                        else 0.0
+                    )
+                    valor = (
+                        float(str(row["valores"]).replace(",", "."))
+                        if is_valid_valor
+                        else 0.0
+                    )
 
                     # Cria o objeto de dados para inserção
                     data = ExportationCreate(
@@ -72,7 +83,7 @@ class ExportationIngestor(EmbrapaBaseIngestor):
                         country=country,
                         quantity=quantidade,
                         value=valor,
-                        path=path.split("/")[1].split(".")[0]
+                        path=path.split("/")[1].split(".")[0],
                     )
                     create_exportation(session, data)
                     n_inserts += 1
@@ -80,5 +91,4 @@ class ExportationIngestor(EmbrapaBaseIngestor):
                 except (ValueError, KeyError, TypeError) as e:
                     print(f"Error on row {idx} — data: {row.to_dict()} — {e}")
 
-        print(
-            f"Ingestion completed: {n_inserts} inserted, {n_skipped} skipped.")
+        print(f"Ingestion completed: {n_inserts} inserted, {n_skipped} skipped.")

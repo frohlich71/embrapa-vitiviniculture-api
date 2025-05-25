@@ -57,7 +57,9 @@ class ProductionIngestor(EmbrapaBaseIngestor):
             raise ValueError(f"Missing required columns in CSV: {missing}")
 
         # Map category based on control prefix using numpy
-        conditions = [df["control"].str.startswith(prefix) for prefix in self.CATEGORY_PREFIXES]
+        conditions = [
+            df["control"].str.startswith(prefix) for prefix in self.CATEGORY_PREFIXES
+        ]
         categories = list(self.CATEGORY_PREFIXES.values())
         df["category"] = np.select(conditions, categories, default="")
 

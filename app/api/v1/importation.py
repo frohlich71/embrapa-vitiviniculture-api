@@ -3,7 +3,11 @@ from sqlmodel import Session
 
 from app.db.session import get_session
 from app.models.importation import ImportationRead
-from app.crud.importation import list_importation, clear_importation, list_importation_by_path
+from app.crud.importation import (
+    list_importation,
+    clear_importation,
+    list_importation_by_path,
+)
 from app.services.embrapa.importation_ingestor import ImportationIngestor
 
 router = APIRouter()

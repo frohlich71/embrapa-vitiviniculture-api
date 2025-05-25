@@ -29,13 +29,16 @@ def list_exportation_by_path(session: Session, path: str) -> Sequence[Exportatio
     return session.exec(select(Exportation).where(Exportation.path == path)).all()
 
 
-def get_by_year_and_country_and_path(session: Session, year: int, country: str, path: str) -> Exportation:
+def get_by_year_and_country_and_path(
+    session: Session, year: int, country: str, path: str
+) -> Exportation:
     """
     Check if a importation record already exists for the given year and product.
     """
     statement = select(Exportation).where(
-        (Exportation.year == year) & (Exportation.country ==
-                                      country) & (Exportation.path == path)
+        (Exportation.year == year)
+        & (Exportation.country == country)
+        & (Exportation.path == path)
     )
     return session.exec(statement).first()
 

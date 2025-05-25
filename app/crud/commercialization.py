@@ -7,7 +7,9 @@ from sqlmodel import Session, delete, select
 from app.models.commercialization import Commercialization, CommercializationCreate
 
 
-def create_commercialization(session: Session, data: CommercializationCreate) -> Commercialization:
+def create_commercialization(
+    session: Session, data: CommercializationCreate
+) -> Commercialization:
     """
     Create a new commercialization record in the database.
     """

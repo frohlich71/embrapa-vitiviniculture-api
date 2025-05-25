@@ -3,6 +3,7 @@ from fastapi import APIRouter
 
 router = APIRouter()
 
+
 @router.get("/tables")
 def get_tables():
     conn = sqlite3.connect("/app/db/local.db")

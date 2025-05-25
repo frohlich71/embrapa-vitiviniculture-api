@@ -41,7 +41,9 @@ class CommercializationIngestor(EmbrapaBaseIngestor):
                 data = CommercializationCreate(
                     year=year,
                     product=product,
-                    quantity_liters=float(str(row["quantidade_litros"]).replace(",", "."))
+                    quantity_liters=float(
+                        str(row["quantidade_litros"]).replace(",", ".")
+                    ),
                 )
                 create_commercialization(session, data)
                 n_inserts += 1
@@ -50,4 +52,3 @@ class CommercializationIngestor(EmbrapaBaseIngestor):
                 print(f"Error on row {idx} — data: {row.to_dict()} — {e}")
 
         print(f"Ingestion completed: {n_inserts} inserted, {n_skipped} skipped.")
-

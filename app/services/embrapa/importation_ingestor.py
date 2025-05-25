@@ -12,7 +12,7 @@ class ImportationIngestor(EmbrapaBaseIngestor):
         "download/ImpEspumantes.csv",
         "download/ImpFrescas.csv",
         "download/ImpPassas.csv",
-        "download/ImpSuco.csv"
+        "download/ImpSuco.csv",
     ]
 
     def reshape(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -47,8 +47,7 @@ class ImportationIngestor(EmbrapaBaseIngestor):
 
                     # Verifica se já existe
                     if get_by_year_and_country_and_path(session, year, country, path):
-                        print(
-                            f"Skipping duplicate: {year} - {country} - {path}")
+                        print(f"Skipping duplicate: {year} - {country} - {path}")
                         n_skipped += 1
                         continue
 
@@ -56,7 +55,9 @@ class ImportationIngestor(EmbrapaBaseIngestor):
                     quantidade_raw = str(row["quantidade"])
 
                     # Checagem de validade
-                    if quantidade_raw in valores_invalidos or pd.isna(row["quantidade"]):
+                    if quantidade_raw in valores_invalidos or pd.isna(
+                        row["quantidade"]
+                    ):
                         quantidade = 0.0
                     else:
                         quantidade = float(quantidade_raw.replace(",", "."))
@@ -66,7 +67,7 @@ class ImportationIngestor(EmbrapaBaseIngestor):
                         year=year,
                         country=country,
                         quantity_kg=quantidade,
-                        path=path.split("/")[1].split(".")[0]
+                        path=path.split("/")[1].split(".")[0],
                     )
                     create_importation(session, data)
                     n_inserts += 1
@@ -74,5 +75,4 @@ class ImportationIngestor(EmbrapaBaseIngestor):
                 except (ValueError, KeyError, TypeError) as e:
                     print(f"Error on row {idx} — data: {row.to_dict()} — {e}")
 
-        print(
-            f"Ingestion completed: {n_inserts} inserted, {n_skipped} skipped.")
+        print(f"Ingestion completed: {n_inserts} inserted, {n_skipped} skipped.")

@@ -13,6 +13,7 @@ class EmbrapaBaseIngestor(abc.ABC):
     """
     Base class for ingesting Embrapa CSV data.
     """
+
     BASE_URL = os.getenv("EMBRAPA_BASE_URL", "http://vitibrasil.cnpuv.embrapa.br")
     CSV_PATH: str  # should be defined in subclasses
 

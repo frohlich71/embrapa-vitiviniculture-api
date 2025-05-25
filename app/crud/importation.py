@@ -30,13 +30,16 @@ def list_importation_by_path(session, path):
     return result.scalars().all()
 
 
-def get_by_year_and_country_and_path(session: Session, year: int, country: str, path: str) -> Importation:
+def get_by_year_and_country_and_path(
+    session: Session, year: int, country: str, path: str
+) -> Importation:
     """
     Check if a importation record already exists for the given year and product.
     """
     statement = select(Importation).where(
-        (Importation.year == year) & (Importation.country ==
-                                      country) & (Importation.path == path)
+        (Importation.year == year)
+        & (Importation.country == country)
+        & (Importation.path == path)
     )
     return session.exec(statement).first()
 
