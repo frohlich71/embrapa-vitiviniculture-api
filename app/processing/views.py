@@ -2,13 +2,13 @@ from fastapi import APIRouter, Depends
 from sqlmodel import Session
 
 from app.db.session import get_session
-from app.models.processing import ProcessingRead
-from app.crud.processing import (
+from app.processing.ingestor import ProcessingIngestor
+from app.processing.models import ProcessingRead
+from app.processing.crud import (
     list_processing,
     clear_processing,
     list_processing_by_path,
 )
-from app.services.embrapa.processing_ingestor import ProcessingIngestor
 
 router = APIRouter()
 

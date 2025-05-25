@@ -8,7 +8,7 @@ from sqlmodel import SQLModel
 from app.core.config import settings
 from app.production.models import Production
 from app.models.commercialization import Commercialization
-from app.models.processing import Processing
+from app.processing.models import Processing
 from app.models.importation import Importation
 
 # this is the Alembic Config object, which provides

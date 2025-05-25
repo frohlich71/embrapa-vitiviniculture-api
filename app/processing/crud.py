@@ -1,7 +1,7 @@
 from typing import Sequence
 
 from sqlmodel import Session, select, delete
-from app.models.processing import Processing, ProcessingCreate
+from app.processing.models import Processing, ProcessingCreate
 
 
 def create_processing(session: Session, data: ProcessingCreate) -> Processing:

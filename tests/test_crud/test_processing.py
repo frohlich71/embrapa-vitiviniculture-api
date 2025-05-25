@@ -1,5 +1,5 @@
-from app.crud.processing import create_processing, get_by_year_and_cultivate_and_path
-from app.models.processing import ProcessingCreate
+from app.processing.crud import create_processing, get_by_year_and_cultivate_and_path
+from app.processing.models import ProcessingCreate
 
 
 def test_create_and_get(db_session):

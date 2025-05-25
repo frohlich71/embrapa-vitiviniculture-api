@@ -1,8 +1,8 @@
 import pandas as pd
 from sqlmodel import Session
 
-from app.crud.processing import get_by_year_and_cultivate_and_path, create_processing
-from app.models.processing import ProcessingCreate
+from app.processing.crud import get_by_year_and_cultivate_and_path, create_processing
+from app.processing.models import ProcessingCreate
 from app.services.embrapa.base_ingestor import EmbrapaBaseIngestor
 
 
