@@ -1,15 +1,18 @@
 from fastapi import FastAPI
+
 from app.api.v1 import (
-    production,
     commercialization,
-    processing,
-    importation,
-    exportation,
     debug,
+    exportation,
+    importation,
+    processing,
 )
+from app.production import views as production_views
 
 app = FastAPI(title="Embrapa Vitiviniculture API")
-app.include_router(production.router, prefix="/api/v1/production", tags=["Production"])
+app.include_router(
+    production_views.router, prefix="/api/v1/production", tags=["Production"]
+)
 
 app.include_router(
     commercialization.router,
