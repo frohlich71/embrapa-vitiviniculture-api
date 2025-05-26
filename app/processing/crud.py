@@ -2,7 +2,20 @@ from typing import Sequence
 
 from sqlmodel import Session, delete, select
 
+from app.processing.constants import Category, Subcategory
 from app.processing.models import Processing, ProcessingCreate
+
+
+def _default_order_by():
+    """
+    Default order by clause for processing records.
+    """
+    return (
+        Processing.year.desc(),
+        Processing.category,
+        Processing.subcategory,
+        Processing.cultivate,
+    )
 
 
 def create_processing(session: Session, data: ProcessingCreate) -> Processing:
@@ -22,27 +35,40 @@ def list_processing(
     """
     Retrieve all processing records from the database.
     """
-    statement = select(Processing).order_by(
-        Processing.year.desc(),
-        Processing.category,
-        Processing.subcategory,
-        Processing.cultivate,
-    )
+    statement = select(Processing).order_by(*_default_order_by())
+
     if offset:
         statement = statement.offset(offset)
     if limit:
         statement = statement.limit(limit)
+
     result = session.exec(statement)
     return result.all()
 
 
-def list_processing_by_path(session: Session, path: str) -> Sequence[Processing]:
+def list_processing_by_category(
+    session: Session,
+    category: Category,
+    subcategory: Subcategory = None,
+    limit: int = None,
+    offset: int = None,
+) -> Sequence[Processing]:
     """
     Retrieve all processing records from the database by path.
     """
-    statement = select(Processing).where(Processing.path == path)
-    result = session.execute(statement)
-    return result.scalars().all()
+    statement = select(Processing).where(Processing.category == category)
+    if subcategory:
+        statement = statement.where(Processing.subcategory == subcategory)
+
+    statement = statement.order_by(*_default_order_by())
+
+    if offset:
+        statement = statement.offset(offset)
+    if limit:
+        statement = statement.limit(limit)
+
+    result = session.exec(statement)
+    return result.all()
 
 
 def get_by_year_and_cultivate_and_category(

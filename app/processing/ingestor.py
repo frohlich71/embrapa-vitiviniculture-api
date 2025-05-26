@@ -3,6 +3,7 @@ import logging
 import pandas as pd
 from sqlmodel import Session
 
+from app.processing.constants import Category, Subcategory
 from app.processing.crud import (
     create_processing,
     get_by_year_and_cultivate_and_category,
@@ -22,24 +23,24 @@ class ProcessingIngestor(EmbrapaBaseIngestor):
     ]
 
     CATEGORIES = {
-        "download/ProcessaViniferas.csv": "VINIFERA",
-        "download/ProcessaAmericanas.csv": "AMERICANAS",
-        "download/ProcessaMesa.csv": "MESA",
-        "download/ProcessaSemclass.csv": "SEM CLASSIFICACAO",
+        "download/ProcessaViniferas.csv": Category.VINIFERA,
+        "download/ProcessaAmericanas.csv": Category.AMERICANAS,
+        "download/ProcessaMesa.csv": Category.MESA,
+        "download/ProcessaSemclass.csv": Category.SEM_CLASSIFICACAO,
     }
 
     SUBCATEGORY_PREFIXES = {
-        "AMERICANAS": {
-            "ti_": "TINTAS",
-            "br_": "BRANCAS E ROSADAS",
+        Category.AMERICANAS: {
+            "ti_": Subcategory.TINTAS,
+            "br_": Subcategory.BRANCAS_E_ROSADAS,
         },
-        "MESA": {
-            "ti_": "TINTAS",
-            "br_": "BRANCAS",
+        Category.MESA: {
+            "ti_": Subcategory.TINTAS,
+            "br_": Subcategory.BRANCAS,
         },
-        "VINIFERA": {
-            "ti_": "TINTAS",
-            "br_": "BRANCAS E ROSADAS",
+        Category.VINIFERA: {
+            "ti_": Subcategory.TINTAS,
+            "br_": Subcategory.BRANCAS_E_ROSADAS,
         },
     }
 
@@ -111,7 +112,7 @@ class ProcessingIngestor(EmbrapaBaseIngestor):
             lambda c: self._extract_subcategory(category, c)
         )
         df = df[
-            ~((df["subcategory"] == "") & (df["category"] != "SEM CLASSIFICACAO"))
+            ~((df["subcategory"] == "") & (df["category"] != Category.SEM_CLASSIFICACAO))
         ].drop(columns=["control"])
 
         logger.info(f"Transformed {category} data: {df.shape}")

@@ -2,6 +2,8 @@ from typing import Optional
 
 from sqlmodel import Field, SQLModel
 
+from app.production.constants import Category
+
 
 class ProductionBase(SQLModel):
     """Base model defining shared fields for production records."""
@@ -9,7 +11,7 @@ class ProductionBase(SQLModel):
     year: int = Field(index=True)
     product: str = Field(index=True)
     quantity_liters: int
-    category: str = Field(index=True)
+    category: Category = Field(index=True)
 
 
 class Production(ProductionBase, table=True):

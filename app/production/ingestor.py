@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 from sqlmodel import Session
 
+from app.production.constants import Category
 from app.production.crud import create_production, get_by
 from app.production.models import ProductionCreate
 from app.services.embrapa.base_ingestor import EmbrapaBaseIngestor
@@ -15,10 +16,10 @@ class ProductionIngestor(EmbrapaBaseIngestor):
     CSV_PATH = "download/Producao.csv"
 
     CATEGORY_PREFIXES = {
-        "vm_": "VINHO DE MESA",
-        "vv_": "VINHO FINO DE MESA (VINIFERA)",
-        "su_": "SUCO",
-        "de_": "DERIVADOS",
+        "vm_": Category.VINHO_DE_MESA,
+        "vv_": Category.VINHO_FINO_DE_MESA_VINIFERA,
+        "su_": Category.SUCO,
+        "de_": Category.DERIVADOS,
     }
 
     REQUIRED_COLUMNS = {"produto", "control"}
@@ -58,10 +59,8 @@ class ProductionIngestor(EmbrapaBaseIngestor):
             raise ValueError(f"Missing required columns in CSV: {missing}")
 
         # Map category based on control prefix using numpy
-        conditions = [
-            df["control"].str.startswith(prefix) for prefix in self.CATEGORY_PREFIXES
-        ]
-        categories = list(self.CATEGORY_PREFIXES.values())
+        conditions = [df["control"].str.startswith(prefix) for prefix in self.CATEGORY_PREFIXES]
+        categories = [cat.value for cat in self.CATEGORY_PREFIXES.values()]
         df["category"] = np.select(conditions, categories, default="")
 
         # Remove rows without valid category

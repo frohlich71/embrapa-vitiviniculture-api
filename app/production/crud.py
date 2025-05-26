@@ -2,6 +2,7 @@ from typing import Sequence
 
 from sqlmodel import Session, delete, select
 
+from app.production.constants import Category
 from app.production.models import Production, ProductionCreate
 
 
@@ -16,11 +17,40 @@ def create_production(session: Session, data: ProductionCreate) -> Production:
     return prod
 
 
-def list_productions(session: Session) -> Sequence[Production]:
+def list_productions(
+    session: Session, limit: int = None, offset: int = None
+) -> Sequence[Production]:
     """
     Retrieve all production records from the database.
     """
-    statement = select(Production)
+    statement = select(Production).order_by(Production.year.desc(), Production.product)
+
+    if offset:
+        statement = statement.offset(offset)
+    if limit:
+        statement = statement.limit(limit)
+
+    result = session.exec(statement)
+    return result.all()
+
+
+def list_productions_by_category(
+    session: Session, category: Category, limit: int = None, offset: int = None
+) -> Sequence[Production]:
+    """
+    Retrieve all production records from the database.
+    """
+    statement = (
+        select(Production)
+        .where(Production.category == category)
+        .order_by(Production.year.desc(), Production.product)
+    )
+
+    if offset:
+        statement = statement.offset(offset)
+    if limit:
+        statement = statement.limit(limit)
+
     result = session.exec(statement)
     return result.all()
 
