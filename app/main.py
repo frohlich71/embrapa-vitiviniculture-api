@@ -1,7 +1,8 @@
 from fastapi import FastAPI
-from app.api.v1 import production, commercialization, processing, importation, exportation, debug
+from app.api.v1 import production, commercialization, processing, importation, exportation, debug, auth
 
 app = FastAPI(title="Embrapa Vitiviniculture API")
+app.include_router(auth.router, prefix="/api/v1/auth", tags=["Authentication"])
 app.include_router(production.router,
                    prefix="/api/v1/production", tags=["Production"])
 

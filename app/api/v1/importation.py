@@ -5,12 +5,17 @@ from app.db.session import get_session
 from app.models.importation import ImportationRead
 from app.crud.importation import list_importation, clear_importation, list_importation_by_path
 from app.services.embrapa.importation_ingestor import ImportationIngestor
+from app.depends import get_current_user # Added
+from app.models.user import User # Added
 
 router = APIRouter()
 
 
 @router.get("/", response_model=list[ImportationRead])
-def read_all(session: Session = Depends(get_session)):
+def read_all(
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_user) # Added
+):
     """
     Endpoint to list all importation records.
     """
@@ -18,7 +23,11 @@ def read_all(session: Session = Depends(get_session)):
 
 
 @router.get("/{path}", response_model=list[ImportationRead])
-def read_by_path(path: str, session: Session = Depends(get_session)):
+def read_by_path(
+    path: str,
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_user) # Added
+):
     """
     Endpoint to list all importation records by the csv path.
     :param path:

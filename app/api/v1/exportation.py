@@ -5,12 +5,17 @@ from app.crud.exportation import clear_exportation, list_exportation
 from app.db.session import get_session
 from app.models.exportation import ExportationRead
 from app.services.embrapa.exportation_ingestor import ExportationIngestor
+from app.depends import get_current_user # Added
+from app.models.user import User # Added
 
 router = APIRouter()
 
 
 @router.get("/", response_model=list[ExportationRead])
-async def read_all(session: Session = Depends(get_session)):
+async def read_all(
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_user) # Added
+):
     """
     Endpoint to list all export records.
     """

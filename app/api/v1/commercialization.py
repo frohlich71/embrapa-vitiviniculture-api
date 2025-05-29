@@ -5,12 +5,17 @@ from app.crud.commercialization import clear_commercialization, list_commerciali
 from app.db.session import get_session
 from app.models.commercialization import CommercializationRead
 from app.services.embrapa.commercialization_ingestor import CommercializationIngestor
+from app.depends import get_current_user # Added
+from app.models.user import User # Added
 
 router = APIRouter()
 
 
 @router.get("/", response_model=list[CommercializationRead])
-async def read_all(session: Session = Depends(get_session)):
+async def read_all(
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_user) # Added
+):
     """
     Endpoint to list all commercialization records.
     """
