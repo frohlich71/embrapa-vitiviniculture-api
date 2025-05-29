@@ -21,6 +21,6 @@ USER appuser
 
 # Expose port for the application
 EXPOSE 8000
-
+RUN echo "Comando final: hypercorn app.main:app --bind [::]:${PORT:-8000}"
 # Command to run the application
-CMD ["sh", "-c", "hypercorn app.main:app --bind \"[::]:${PORT:-8000}\""]
+CMD ["sh", "-c", "hypercorn app.main:app --bind [::]:${PORT:-8000}"]
