@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlmodel import Session
 
-from app.auth.dependencies import get_current_superuser
+from app.auth.dependencies import get_current_active_user, get_current_superuser
 from app.auth.models import User
 from app.core.config import settings
 from app.core.database import get_session
@@ -23,6 +23,7 @@ router = APIRouter()
 @router.get("/", response_model=PaginatedResponse[ImportationRead])
 def read_all(
     session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_active_user),
     page: int = Query(1, ge=1, description="Page number"),
     per_page: int = Query(100, ge=1, le=1000, description="Items per page"),
 ):
@@ -46,6 +47,7 @@ def read_all(
 def read_by_category(
     category: Category,
     session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_active_user),
     page: int = Query(1, ge=1, description="Page number"),
     per_page: int = Query(100, ge=1, le=1000, description="Items per page"),
 ):
