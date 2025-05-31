@@ -81,3 +81,18 @@ If you prefer to run the application without Docker:
    ```bash
    uvicorn app.main:app --reload
    ```
+   
+
+# Production environment
+
+Our API and Database is running on https://railway.com/
+
+## Deploy
+
+To deploy the application is necessary only to push into the main branch of the project.
+Railway reads the Dockerfile to build the container, so every change on it should be carefully reviewed.
+
+
+### https://embrapa-vitiviniculture-api-production.up.railway.app/docs
+
+
