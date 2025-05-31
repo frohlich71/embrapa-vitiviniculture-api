@@ -1,6 +1,7 @@
 import typer
 from sqlmodel import Session
 
+from app.auth.init_admin import create_admin_user
 from app.core.database import engine
 from app.processing.ingestor import ProcessingIngestor
 from app.production.ingestor import ProductionIngestor
@@ -26,6 +27,12 @@ def run(source: str):
             ExportationIngestor().ingest(session)
         else:
             print("Unsupported source: {source}")
+
+
+@app.command()
+def init_admin():
+    """Initialize admin user"""
+    create_admin_user()
 
 
 if __name__ == "__main__":

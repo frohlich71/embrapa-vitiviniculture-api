@@ -3,7 +3,7 @@
 # File paths for importation data ingestion
 IMPORTATION_PATHS = [
     "download/ImpVinhos.csv",
-    "download/ImpEspumantes.csv", 
+    "download/ImpEspumantes.csv",
     "download/ImpFrescas.csv",
     "download/ImpPassas.csv",
     "download/ImpSuco.csv",

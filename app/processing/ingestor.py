@@ -112,7 +112,10 @@ class ProcessingIngestor(EmbrapaBaseIngestor):
             lambda c: self._extract_subcategory(category, c)
         )
         df = df[
-            ~((df["subcategory"] == "") & (df["category"] != Category.SEM_CLASSIFICACAO))
+            ~(
+                (df["subcategory"] == "")
+                & (df["category"] != Category.SEM_CLASSIFICACAO)
+            )
         ].drop(columns=["control"])
 
         logger.info(f"Transformed {category} data: {df.shape}")

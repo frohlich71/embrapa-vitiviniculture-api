@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Depends, Query, HTTPException, status
 from sqlmodel import Session
 
+from app.auth.dependencies import get_current_superuser
+from app.auth.models import User
 from app.core.config import settings
 from app.core.pagination import PaginatedResponse
 from app.core.database import get_session
@@ -21,24 +23,21 @@ router = APIRouter()
 async def read_all(
     session: Session = Depends(get_session),
     page: int = Query(1, ge=1, description="Page number"),
-    per_page: int = Query(100, ge=1, le=1000, description="Items per page")
+    per_page: int = Query(100, ge=1, le=1000, description="Items per page"),
 ):
     """
     Endpoint to list all export records with pagination.
     """
     offset = (page - 1) * per_page
-    
+
     # Get total count
     total = count_exportation(session)
-    
+
     # Get paginated data
     data = list_exportation(session, per_page, offset)
-    
+
     return PaginatedResponse.create(
-        data=data,
-        total=total,
-        page=page,
-        per_page=per_page
+        data=data, total=total, page=page, per_page=per_page
     )
 
 
@@ -47,7 +46,7 @@ async def read_by_path(
     path: str,
     session: Session = Depends(get_session),
     page: int = Query(1, ge=1, description="Page number"),
-    per_page: int = Query(100, ge=1, le=1000, description="Items per page")
+    per_page: int = Query(100, ge=1, le=1000, description="Items per page"),
 ):
     """
     Endpoint to list all exportation records by the csv path with pagination.
@@ -58,26 +57,26 @@ async def read_by_path(
     :return: Paginated list of exportation records
     """
     offset = (page - 1) * per_page
-    
+
     # Get total count
     total = count_exportation_by_path(session, path)
-    
+
     # Get paginated data
     data = list_exportation_by_path(session, path, per_page, offset)
-    
+
     return PaginatedResponse.create(
-        data=data,
-        total=total,
-        page=page,
-        per_page=per_page
+        data=data, total=total, page=page, per_page=per_page
     )
 
 
 @router.post("/reingest")
-async def reingest(session: Session = Depends(get_session)):
+async def reingest(
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_superuser),
+):
     """
     Endpoint to force re-ingestion of export data from source files.
-    Requires an admin token in headers and ALLOW_REINGEST=true in environment.
+    Requires superuser authentication and ALLOW_REINGEST=true in environment.
     """
     if not settings.ALLOW_REINGEST:
         raise HTTPException(

@@ -1,45 +1,105 @@
 ENV_FILE=.env
-PYTHON=python
-MODULE=app.cli.ingest
+COMPOSE=docker-compose
+SERVICE=web
 
+# Docker Compose Management
+up:
+	$(COMPOSE) up -d
+
+down:
+	$(COMPOSE) down
+
+build:
+	$(COMPOSE) build
+
+rebuild:
+	$(COMPOSE) down
+	$(COMPOSE) build --no-cache
+	$(COMPOSE) up -d
+
+logs:
+	$(COMPOSE) logs -f
+
+logs-web:
+	$(COMPOSE) logs -f $(SERVICE)
+
+logs-db:
+	$(COMPOSE) logs -f db
+
+# Development Commands (run inside Docker containers)
 run:
-	PYTHONPATH=. fastapi dev app/main.py
+	$(COMPOSE) up -d
 
 test:
-	pytest --cov=app tests/
-
+	$(COMPOSE) exec $(SERVICE) pytest --cov=app tests/
 
 format:
-	black app tests
+	$(COMPOSE) exec $(SERVICE) black app tests
 
 migrate:
-	alembic upgrade head
+	$(COMPOSE) exec $(SERVICE) alembic upgrade head
 
 makemigrations:
-	alembic revision --autogenerate -m "auto migration"
+	$(COMPOSE) exec $(SERVICE) alembic revision --autogenerate -m "auto migration"
 
+# Data Ingestion Commands
 ingest-production:
-	$(PYTHON) -m $(MODULE) production
+	$(COMPOSE) exec $(SERVICE) python -m app.cli.ingest production
 
 ingest-processing:
-	$(PYTHON) -m $(MODULE) processing
+	$(COMPOSE) exec $(SERVICE) python -m app.cli.ingest processing
 
 ingest-commercialization:
-	$(PYTHON) -m $(MODULE) commercialization
+	$(COMPOSE) exec $(SERVICE) python -m app.cli.ingest commercialization
 
 ingest-importation:
-	$(PYTHON) -m $(MODULE) importation
+	$(COMPOSE) exec $(SERVICE) python -m app.cli.ingest importation
 
 ingest-exportation:
-	$(PYTHON) -m $(MODULE) exportation
+	$(COMPOSE) exec $(SERVICE) python -m app.cli.ingest exportation
 
+# Database Management
+create-admin:
+	$(COMPOSE) exec $(SERVICE) python -m app.auth.init_admin
+
+reset-db:
+	$(COMPOSE) down
+	$(COMPOSE) volume rm embrapa-vitiviniculture-api_postgres_data || true
+	$(COMPOSE) up -d
+
+# Full Setup Commands
 init:
+	$(COMPOSE) up -d
+	sleep 10
 	make migrate
+	make create-admin
 	make ingest-production
 	make ingest-processing
 	make ingest-commercialization
 	make ingest-importation
 	make ingest-exportation
-# Instalação de dependências
+
+init-all: build init
+
+# Shell Access
+shell:
+	$(COMPOSE) exec $(SERVICE) bash
+
+shell-db:
+	$(COMPOSE) exec db psql -U postgres -d embrapa_vitiviniculture
+
+# Status Commands
+status:
+	$(COMPOSE) ps
+
+health:
+	curl -f http://localhost:8000/ || echo "API not responding"
+
+# Clean Commands
+clean:
+	$(COMPOSE) down -v
+	docker system prune -f
+
 install:
-	pip install -r requirements.txt
+	@echo "Dependencies are installed during Docker build process"
+	@echo "To rebuild with new dependencies, run: make rebuild"

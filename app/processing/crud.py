@@ -115,6 +115,6 @@ def count_processing_by_category(
     statement = select(func.count(Processing.id)).where(Processing.category == category)
     if subcategory:
         statement = statement.where(Processing.subcategory == subcategory)
-    
+
     result = session.exec(statement)
     return result.one()

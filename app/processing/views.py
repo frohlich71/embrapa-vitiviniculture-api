@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlmodel import Session
 
+from app.auth.dependencies import get_current_superuser
+from app.auth.models import User
 from app.core.config import settings
 from app.core.pagination import PaginatedResponse
 from app.core.database import get_session
@@ -26,37 +28,36 @@ def get_offset(page):
 
 @router.get("/", response_model=PaginatedResponse[ProcessingRead])
 def read_all(
-    session: Session = Depends(get_session), 
+    session: Session = Depends(get_session),
     page: int = Query(1, ge=1, description="Page number"),
-    per_page: int = Query(100, ge=1, le=1000, description="Items per page")
+    per_page: int = Query(100, ge=1, le=1000, description="Items per page"),
 ):
     """
     Endpoint to list all processing records with pagination.
     """
     offset = (page - 1) * per_page
-    
+
     # Get total count
     total = count_processing(session)
-    
+
     # Get paginated data
     data = list_processing(session, per_page, offset)
-    
+
     return PaginatedResponse.create(
-        data=data,
-        total=total,
-        page=page,
-        per_page=per_page
+        data=data, total=total, page=page, per_page=per_page
     )
 
 
 @router.get("/{category}", response_model=PaginatedResponse[ProcessingRead])
-@router.get("/{category}/{subcategory}", response_model=PaginatedResponse[ProcessingRead])
+@router.get(
+    "/{category}/{subcategory}", response_model=PaginatedResponse[ProcessingRead]
+)
 def read_by_path(
     category: Category,
     subcategory: Subcategory | None = None,
     session: Session = Depends(get_session),
     page: int = Query(1, ge=1, description="Page number"),
-    per_page: int = Query(100, ge=1, le=1000, description="Items per page")
+    per_page: int = Query(100, ge=1, le=1000, description="Items per page"),
 ):
     """
     Endpoint to list all processing records by the category and subcategory with pagination.
@@ -68,26 +69,26 @@ def read_by_path(
     :return: Paginated list of processing records.
     """
     offset = (page - 1) * per_page
-    
+
     # Get total count
     total = count_processing_by_category(session, category, subcategory)
-    
+
     # Get paginated data
     data = list_processing_by_category(session, category, subcategory, per_page, offset)
-    
+
     return PaginatedResponse.create(
-        data=data,
-        total=total,
-        page=page,
-        per_page=per_page
+        data=data, total=total, page=page, per_page=per_page
     )
 
 
 @router.post("/reingest")
-def reingest(session: Session = Depends(get_session)):
+def reingest(
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_superuser),
+):
     """
     Endpoint to force re-ingestion of processing data from source files.
-    Requires an admin token in headers and ALLOW_REINGEST=true in environment.
+    Requires superuser authentication and ALLOW_REINGEST=true in environment.
     """
     if not settings.ALLOW_REINGEST:
         raise HTTPException(

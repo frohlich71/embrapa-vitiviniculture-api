@@ -39,13 +39,15 @@ def list_importation(
     """
     Retrieve all importation records from the database.
     """
-    statement = select(Importation).order_by(Importation.year.desc(), Importation.country)
-    
+    statement = select(Importation).order_by(
+        Importation.year.desc(), Importation.country
+    )
+
     if offset:
         statement = statement.offset(offset)
     if limit:
         statement = statement.limit(limit)
-        
+
     result = session.execute(statement)
     return result.scalars().all()
 
@@ -61,12 +63,12 @@ def list_importation_by_path(
         .where(Importation.path == path)
         .order_by(Importation.year.desc(), Importation.country)
     )
-    
+
     if offset:
         statement = statement.offset(offset)
     if limit:
         statement = statement.limit(limit)
-        
+
     result = session.execute(statement)
     return result.scalars().all()
 

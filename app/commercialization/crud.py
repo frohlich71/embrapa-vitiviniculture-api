@@ -38,12 +38,12 @@ def list_commercializations(
     statement = select(Commercialization).order_by(
         Commercialization.year.desc(), Commercialization.product
     )
-    
+
     if offset:
         statement = statement.offset(offset)
     if limit:
         statement = statement.limit(limit)
-        
+
     result = session.execute(statement)
     return result.scalars().all()
 

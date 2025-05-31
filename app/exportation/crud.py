@@ -39,13 +39,15 @@ def list_exportation(
     """
     Retrieve all exportation records from the database.
     """
-    statement = select(Exportation).order_by(Exportation.year.desc(), Exportation.country)
-    
+    statement = select(Exportation).order_by(
+        Exportation.year.desc(), Exportation.country
+    )
+
     if offset:
         statement = statement.offset(offset)
     if limit:
         statement = statement.limit(limit)
-    
+
     result = session.exec(statement)
     return result.all()
 
@@ -61,12 +63,12 @@ def list_exportation_by_path(
         .where(Exportation.path == path)
         .order_by(Exportation.year.desc(), Exportation.country)
     )
-    
+
     if offset:
         statement = statement.offset(offset)
     if limit:
         statement = statement.limit(limit)
-    
+
     result = session.exec(statement)
     return result.all()
 
