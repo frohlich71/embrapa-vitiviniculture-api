@@ -1,4 +1,4 @@
-from app.services.embrapa.production_ingestor import ProductionIngestor
+from app.production.ingestor import ProductionIngestor
 
 
 def test_fetch_csv():

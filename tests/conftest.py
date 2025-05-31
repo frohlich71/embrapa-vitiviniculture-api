@@ -2,7 +2,7 @@
 import pytest
 from fastapi.testclient import TestClient
 from sqlmodel import SQLModel, create_engine, Session
-from app.db.session import get_session
+from app.core.database import get_session
 from app.main import app
 
 DATABASE_URL = "sqlite:///:memory:"

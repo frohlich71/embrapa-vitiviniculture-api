@@ -1,12 +1,13 @@
 import typer
 from sqlmodel import Session
 
-from app.db.session import engine
-from app.services.embrapa.processing_ingestor import ProcessingIngestor
-from app.services.embrapa.production_ingestor import ProductionIngestor
-from app.services.embrapa.commercialization_ingestor import CommercializationIngestor
-from app.services.embrapa.importation_ingestor import ImportationIngestor
-from app.services.embrapa.exportation_ingestor import ExportationIngestor
+from app.auth.init_admin import create_admin_user
+from app.commercialization.ingestor import CommercializationIngestor
+from app.core.database import engine
+from app.exportation.ingestor import ExportationIngestor
+from app.importation.ingestor import ImportationIngestor
+from app.processing.ingestor import ProcessingIngestor
+from app.production.ingestor import ProductionIngestor
 
 app = typer.Typer()
 
@@ -26,6 +27,12 @@ def run(source: str):
             ExportationIngestor().ingest(session)
         else:
             print("Unsupported source: {source}")
+
+
+@app.command()
+def init_admin():
+    """Initialize admin user"""
+    create_admin_user()
 
 
 if __name__ == "__main__":

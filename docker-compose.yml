@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   web:
     build: .
@@ -8,9 +6,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    environment:
-      - DATABASE_URL=postgresql://postgres:postgres@db:5432/embrapa_vitiviniculture
-      - ALLOW_REINGEST=false
+    env_file:
+      - .env
     volumes:
       - ./app:/app/app
       - ./migrations:/app/migrations
