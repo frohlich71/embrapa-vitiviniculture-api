@@ -1,12 +1,12 @@
 import typer
 from sqlmodel import Session
 
-from app.db.session import engine
+from app.core.database import engine
 from app.processing.ingestor import ProcessingIngestor
 from app.production.ingestor import ProductionIngestor
-from app.services.embrapa.commercialization_ingestor import CommercializationIngestor
-from app.services.embrapa.exportation_ingestor import ExportationIngestor
-from app.services.embrapa.importation_ingestor import ImportationIngestor
+from app.commercialization.ingestor import CommercializationIngestor
+from app.exportation.ingestor import ExportationIngestor
+from app.importation.ingestor import ImportationIngestor
 
 app = typer.Typer()
 

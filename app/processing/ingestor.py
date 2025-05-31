@@ -9,7 +9,7 @@ from app.processing.crud import (
     get_by_year_and_cultivate_and_category,
 )
 from app.processing.models import ProcessingCreate
-from app.services.embrapa.base_ingestor import EmbrapaBaseIngestor
+from app.core.base_ingestor import EmbrapaBaseIngestor
 
 logger = logging.getLogger(__name__)
 

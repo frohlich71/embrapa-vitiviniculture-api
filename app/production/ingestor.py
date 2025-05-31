@@ -7,7 +7,7 @@ from sqlmodel import Session
 from app.production.constants import Category
 from app.production.crud import create_production, get_by
 from app.production.models import ProductionCreate
-from app.services.embrapa.base_ingestor import EmbrapaBaseIngestor
+from app.core.base_ingestor import EmbrapaBaseIngestor
 
 logger = logging.getLogger(__name__)
 

@@ -1,5 +1,5 @@
-from app.crud.importation import create_importation, get_by_year_and_country_and_path
-from app.processing.models import ImportationCreate
+from app.importation.crud import create_importation, get_by_year_and_country_and_path
+from app.importation.models import ImportationCreate
 
 
 def test_create_and_get(db_session):

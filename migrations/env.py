@@ -7,9 +7,10 @@ from sqlmodel import SQLModel
 
 from app.core.config import settings
 from app.production.models import Production
-from app.models.commercialization import Commercialization
+from app.commercialization.models import Commercialization
 from app.processing.models import Processing
-from app.models.importation import Importation
+from app.importation.models import Importation
+from app.exportation.models import Exportation
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

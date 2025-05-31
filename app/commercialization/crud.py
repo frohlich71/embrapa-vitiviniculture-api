@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from typing import Sequence
 
-from sqlmodel import Session, delete, select
+from sqlmodel import Session, delete, select, func
 
-from app.models.commercialization import Commercialization, CommercializationCreate
+from app.commercialization.models import Commercialization, CommercializationCreate
 
 
 def create_commercialization(
@@ -20,11 +20,30 @@ def create_commercialization(
     return prod
 
 
-def list_commercializations(session: Session) -> Sequence[Commercialization]:
+def count_commercializations(session: Session) -> int:
+    """
+    Count total commercialization records in the database.
+    """
+    statement = select(func.count(Commercialization.id))
+    result = session.exec(statement)
+    return result.one()
+
+
+def list_commercializations(
+    session: Session, limit: int = None, offset: int = None
+) -> Sequence[Commercialization]:
     """
     Retrieve all commercialization records from the database.
     """
-    statement = select(Commercialization)
+    statement = select(Commercialization).order_by(
+        Commercialization.year.desc(), Commercialization.product
+    )
+    
+    if offset:
+        statement = statement.offset(offset)
+    if limit:
+        statement = statement.limit(limit)
+        
     result = session.execute(statement)
     return result.scalars().all()
 

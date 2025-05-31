@@ -1,6 +1,6 @@
 from typing import Sequence
 
-from sqlmodel import Session, delete, select
+from sqlmodel import Session, delete, select, func
 
 from app.processing.constants import Category, Subcategory
 from app.processing.models import Processing, ProcessingCreate
@@ -93,3 +93,28 @@ def clear_processing(session: Session) -> None:
     """
     session.exec(delete(Processing))
     session.commit()
+
+
+def count_processing(session: Session) -> int:
+    """
+    Count total processing records in the database.
+    """
+    statement = select(func.count(Processing.id))
+    result = session.exec(statement)
+    return result.one()
+
+
+def count_processing_by_category(
+    session: Session,
+    category: Category,
+    subcategory: Subcategory = None,
+) -> int:
+    """
+    Count processing records by category and subcategory.
+    """
+    statement = select(func.count(Processing.id)).where(Processing.category == category)
+    if subcategory:
+        statement = statement.where(Processing.subcategory == subcategory)
+    
+    result = session.exec(statement)
+    return result.one()

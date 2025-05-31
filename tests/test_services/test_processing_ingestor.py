@@ -1,4 +1,4 @@
-from app.services.embrapa.processing_ingestor import ProcessingIngestor
+from app.processing.ingestor import ProcessingIngestor
 
 paths = ["download/ProcessaViniferas.csv", "download/ProcessaAmericanas.csv", "download/ProcessaMesa.csv", "download/ProcessaSemclass.csv"]
 

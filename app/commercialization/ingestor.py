@@ -1,9 +1,9 @@
 import pandas as pd
 from sqlmodel import Session
 
-from app.crud.commercialization import create_commercialization, get_by_year_and_product
-from app.models.commercialization import CommercializationCreate
-from app.services.embrapa.base_ingestor import EmbrapaBaseIngestor
+from app.commercialization.crud import create_commercialization, get_by_year_and_product
+from app.commercialization.models import CommercializationCreate
+from app.core.base_ingestor import EmbrapaBaseIngestor
 
 
 class CommercializationIngestor(EmbrapaBaseIngestor):

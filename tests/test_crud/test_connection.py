@@ -1,4 +1,4 @@
-from app.db.session import engine
+from app.core.database import engine
 from sqlmodel import text
 
 def test_database_connection():

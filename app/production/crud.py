@@ -1,6 +1,6 @@
 from typing import Sequence
 
-from sqlmodel import Session, delete, select
+from sqlmodel import Session, delete, select, func
 
 from app.production.constants import Category
 from app.production.models import Production, ProductionCreate
@@ -74,3 +74,21 @@ def clear_production(session: Session) -> None:
     statement = delete(Production)
     session.exec(statement)
     session.commit()
+
+
+def count_productions(session: Session) -> int:
+    """
+    Count total production records in the database.
+    """
+    statement = select(func.count(Production.id))
+    result = session.exec(statement)
+    return result.one()
+
+
+def count_productions_by_category(session: Session, category: Category) -> int:
+    """
+    Count production records by category.
+    """
+    statement = select(func.count(Production.id)).where(Production.category == category)
+    result = session.exec(statement)
+    return result.one()

@@ -1,11 +1,8 @@
 from fastapi import FastAPI
 
-from app.api.v1 import (
-    commercialization,
-    debug,
-    exportation,
-    importation,
-)
+from app.commercialization import views as commercialization_views
+from app.exportation import views as exportation_views
+from app.importation import views as importation_views
 from app.processing import views as processing_views
 from app.production import views as production_views
 
@@ -15,7 +12,7 @@ app.include_router(
 )
 
 app.include_router(
-    commercialization.router,
+    commercialization_views.router,
     prefix="/api/v1/commercialization",
     tags=["Commercialization"],
 )
@@ -25,11 +22,9 @@ app.include_router(
 )
 
 app.include_router(
-    importation.router, prefix="/api/v1/importation", tags=["Importation"]
+    importation_views.router, prefix="/api/v1/importation", tags=["Importation"]
 )
 
 app.include_router(
-    exportation.router, prefix="/api/v1/exportation", tags=["Exportation"]
+    exportation_views.router, prefix="/api/v1/exportation", tags=["Exportation"]
 )
-
-app.include_router(debug.router, prefix="/api/v1/debug", tags=["Debug"])

@@ -1,4 +1,4 @@
-from app.services.embrapa.commercialization_ingestor import CommercializationIngestor
+from app.commercialization.ingestor import CommercializationIngestor
 
 
 def test_fetch_csv():

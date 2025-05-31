@@ -1,10 +1,9 @@
 import pandas as pd
 from sqlmodel import Session
 
-from app.crud.exportation import create_exportation
-from app.crud.importation import get_by_year_and_country_and_path
-from app.models.exportation import ExportationCreate
-from app.services.embrapa.base_ingestor import EmbrapaBaseIngestor
+from app.exportation.crud import create_exportation, get_by_year_and_country_and_path
+from app.exportation.models import ExportationCreate
+from app.core.base_ingestor import EmbrapaBaseIngestor
 
 
 class ExportationIngestor(EmbrapaBaseIngestor):
@@ -81,7 +80,7 @@ class ExportationIngestor(EmbrapaBaseIngestor):
                     data = ExportationCreate(
                         year=year,
                         country=country,
-                        quantity=quantidade,
+                        quantity_kg=quantidade,
                         value=valor,
                         path=path.split("/")[1].split(".")[0],
                     )
