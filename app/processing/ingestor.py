@@ -113,7 +113,7 @@ class ProcessingIngestor(EmbrapaBaseIngestor):
         )
         df = df[
             ~(
-                (df["subcategory"] == "")
+                (df["subcategory"] == Subcategory.NONE)
                 & (df["category"] != Category.SEM_CLASSIFICACAO)
             )
         ].drop(columns=["control"])
@@ -126,4 +126,4 @@ class ProcessingIngestor(EmbrapaBaseIngestor):
         for prefix, subcat in prefixes.items():
             if control_value.startswith(prefix):
                 return subcat
-        return ""
+        return Subcategory.NONE

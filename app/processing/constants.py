@@ -12,3 +12,4 @@ class Subcategory(str, Enum):
     TINTAS = "tintas"
     BRANCAS = "brancas"
     BRANCAS_E_ROSADAS = "brancas-e-rosadas"
+    NONE = "none"
