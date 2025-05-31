@@ -1,5 +1,8 @@
 from typing import Optional
-from sqlmodel import SQLModel, Field
+
+from sqlmodel import Field, SQLModel
+
+from app.importation.constants import Category
 
 
 class ImportationBase(SQLModel):
@@ -7,8 +10,8 @@ class ImportationBase(SQLModel):
 
     year: int = Field(index=True)
     country: str = Field(index=True)
-    quantity_kg: float
-    path: str = Field(index=True)
+    quantity_kg: int
+    category: Category = Field(index=True)
 
 
 class Importation(ImportationBase, table=True):

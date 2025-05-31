@@ -1,11 +1,11 @@
-from fastapi import APIRouter, Depends, Query, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlmodel import Session
 
-from app.auth.dependencies import get_current_superuser
+from app.auth.dependencies import get_current_active_user, get_current_superuser
 from app.auth.models import User
 from app.core.config import settings
-from app.core.pagination import PaginatedResponse
 from app.core.database import get_session
+from app.core.pagination import PaginatedResponse
 from app.exportation.crud import (
     clear_exportation,
     count_exportation,
@@ -13,8 +13,8 @@ from app.exportation.crud import (
     list_exportation,
     list_exportation_by_path,
 )
-from app.exportation.models import ExportationRead
 from app.exportation.ingestor import ExportationIngestor
+from app.exportation.models import ExportationRead
 
 router = APIRouter()
 
@@ -22,6 +22,7 @@ router = APIRouter()
 @router.get("/", response_model=PaginatedResponse[ExportationRead])
 async def read_all(
     session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_active_user),
     page: int = Query(1, ge=1, description="Page number"),
     per_page: int = Query(100, ge=1, le=1000, description="Items per page"),
 ):
@@ -45,6 +46,7 @@ async def read_all(
 async def read_by_path(
     path: str,
     session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_active_user),
     page: int = Query(1, ge=1, description="Page number"),
     per_page: int = Query(100, ge=1, le=1000, description="Items per page"),
 ):

@@ -44,23 +44,23 @@ makemigrations:
 
 # Data Ingestion Commands
 ingest-production:
-	$(COMPOSE) exec $(SERVICE) python -m app.cli.ingest production
+	$(COMPOSE) exec $(SERVICE) python -m app.cli.ingest run production
 
 ingest-processing:
-	$(COMPOSE) exec $(SERVICE) python -m app.cli.ingest processing
+	$(COMPOSE) exec $(SERVICE) python -m app.cli.ingest run processing
 
 ingest-commercialization:
-	$(COMPOSE) exec $(SERVICE) python -m app.cli.ingest commercialization
+	$(COMPOSE) exec $(SERVICE) python -m app.cli.ingest run commercialization
 
 ingest-importation:
-	$(COMPOSE) exec $(SERVICE) python -m app.cli.ingest importation
+	$(COMPOSE) exec $(SERVICE) python -m app.cli.ingest run importation
 
 ingest-exportation:
-	$(COMPOSE) exec $(SERVICE) python -m app.cli.ingest exportation
+	$(COMPOSE) exec $(SERVICE) python -m app.cli.ingest run exportation
 
 # Database Management
 create-admin:
-	$(COMPOSE) exec $(SERVICE) python -m app.auth.init_admin
+	$(COMPOSE) exec $(SERVICE) python -m app.cli.ingest init-admin
 
 reset-db:
 	$(COMPOSE) down

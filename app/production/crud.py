@@ -1,6 +1,6 @@
 from typing import Sequence
 
-from sqlmodel import Session, delete, select, func
+from sqlmodel import Session, delete, func, select
 
 from app.production.constants import Category
 from app.production.models import Production, ProductionCreate

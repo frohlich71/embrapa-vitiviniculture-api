@@ -1,6 +1,8 @@
 from typing import Sequence
 
-from sqlmodel import Session, select, delete, func
+from sqlmodel import Session, delete, func, select
+
+from app.importation.constants import Category
 from app.importation.models import Importation, ImportationCreate
 
 
@@ -24,11 +26,13 @@ def count_importation(session: Session) -> int:
     return result.one()
 
 
-def count_importation_by_path(session: Session, path: str) -> int:
+def count_importation_by_category(session: Session, category: Category) -> int:
     """
-    Count importation records by path.
+    Count importation records by category.
     """
-    statement = select(func.count(Importation.id)).where(Importation.path == path)
+    statement = select(func.count(Importation.id)).where(
+        Importation.category == category
+    )
     result = session.exec(statement)
     return result.one()
 
@@ -52,15 +56,15 @@ def list_importation(
     return result.scalars().all()
 
 
-def list_importation_by_path(
-    session: Session, path: str, limit: int = None, offset: int = None
+def list_importation_by_category(
+    session: Session, category: Category, limit: int = None, offset: int = None
 ) -> Sequence[Importation]:
     """
-    Retrieve all importation records from the database by path.
+    Retrieve all importation records from the database by category.
     """
     statement = (
         select(Importation)
-        .where(Importation.path == path)
+        .where(Importation.category == category)
         .order_by(Importation.year.desc(), Importation.country)
     )
 
@@ -73,16 +77,16 @@ def list_importation_by_path(
     return result.scalars().all()
 
 
-def get_by_year_and_country_and_path(
-    session: Session, year: int, country: str, path: str
+def get_by_year_and_country_and_category(
+    session: Session, year: int, country: str, category: Category
 ) -> Importation:
     """
-    Check if a importation record already exists for the given year and product.
+    Check if a importation record already exists for the given year, country and category.
     """
     statement = select(Importation).where(
         (Importation.year == year)
         & (Importation.country == country)
-        & (Importation.path == path)
+        & (Importation.category == category)
     )
     return session.exec(statement).first()
 

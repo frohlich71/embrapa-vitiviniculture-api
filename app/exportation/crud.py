@@ -1,6 +1,7 @@
 from typing import Sequence
 
-from sqlmodel import Session, select, delete, func
+from sqlmodel import Session, delete, func, select
+
 from app.exportation.models import Exportation, ExportationCreate
 
 

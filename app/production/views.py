@@ -1,11 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlmodel import Session
 
-from app.auth.dependencies import get_current_superuser
+from app.auth.dependencies import get_current_active_user, get_current_superuser
 from app.auth.models import User
 from app.core.config import settings
-from app.core.pagination import PaginatedResponse
 from app.core.database import get_session
+from app.core.pagination import PaginatedResponse
 from app.production.constants import Category
 from app.production.crud import (
     clear_production,
@@ -29,6 +29,7 @@ def get_offset(page):
 @router.get("/", response_model=PaginatedResponse[ProductionRead])
 async def read_all(
     session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_active_user),
     page: int = Query(1, ge=1, description="Page number"),
     per_page: int = Query(100, ge=1, le=1000, description="Items per page"),
 ):
@@ -52,6 +53,7 @@ async def read_all(
 async def read_by_category(
     category: Category,
     session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_active_user),
     page: int = Query(1, ge=1, description="Page number"),
     per_page: int = Query(100, ge=1, le=1000, description="Items per page"),
 ):

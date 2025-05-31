@@ -1,78 +1,90 @@
+import logging
+
 import pandas as pd
 from sqlmodel import Session
 
-from app.importation.crud import get_by_year_and_country_and_path, create_importation
-from app.importation.models import ImportationCreate
 from app.core.base_ingestor import EmbrapaBaseIngestor
+from app.importation.constants import (
+    CATEGORY_MAPPING,
+    IMPORTATION_PATHS,
+    INVALID_VALUES,
+)
+from app.importation.crud import (
+    create_importation,
+    get_by_year_and_country_and_category,
+)
+from app.importation.models import ImportationCreate
+
+logger = logging.getLogger(__name__)
 
 
 class ImportationIngestor(EmbrapaBaseIngestor):
-    PATHS = [
-        "download/ImpVinhos.csv",
-        "download/ImpEspumantes.csv",
-        "download/ImpFrescas.csv",
-        "download/ImpPassas.csv",
-        "download/ImpSuco.csv",
-    ]
-
-    def reshape(self, df: pd.DataFrame) -> pd.DataFrame:
-        id_vars = ["País"]  # Mantemos "País" como identificador
-        value_vars = [col for col in df.columns if col.isdigit()]  # Só anos
-
-        # Transformação dos dados
-        melted = df.melt(
-            id_vars=id_vars,
-            value_vars=value_vars,
-            var_name="ano",
-            value_name="quantidade",
-        )
-
-        print(f"Transformed shape: {melted.shape}")
-        return melted
+    PATHS = IMPORTATION_PATHS
 
     def ingest(self, session: Session):
-        n_inserts = 0
-        n_skipped = 0
+        n_inserts = n_skipped = 0
 
         for path in self.PATHS:
-            separator = ";" if path == "download/ImpSuco.csv" else "\t"
+            self.CSV_PATH = path
+            category = CATEGORY_MAPPING[path]
+            separator = ";" if "ImpSuco" in path else "\t"
 
             df = self.fetch_csv(path, separator)
-            melted = self.reshape(df)
+            melted = self._prepare_dataframe(df, category)
 
-            for idx, row in melted.iterrows():
+            for _, row in melted.iterrows():
+                if get_by_year_and_country_and_category(
+                    session,
+                    row["year"],
+                    row["country"],
+                    row["category"],
+                ):
+                    n_skipped += 1
+                    continue
+
                 try:
-                    year = int(row["ano"])
-                    country = row["País"]
-
-                    # Verifica se já existe
-                    if get_by_year_and_country_and_path(session, year, country, path):
-                        print(f"Skipping duplicate: {year} - {country} - {path}")
-                        n_skipped += 1
-                        continue
-
-                    valores_invalidos = {"nd", "+", "*"}
-                    quantidade_raw = str(row["quantidade"])
-
-                    # Checagem de validade
-                    if quantidade_raw in valores_invalidos or pd.isna(
-                        row["quantidade"]
-                    ):
-                        quantidade = 0.0
-                    else:
-                        quantidade = float(quantidade_raw.replace(",", "."))
-
-                    # Criação do registro
                     data = ImportationCreate(
-                        year=year,
-                        country=country,
-                        quantity_kg=quantidade,
-                        path=path.split("/")[1].split(".")[0],
+                        year=row["year"],
+                        country=row["country"],
+                        quantity_kg=row["quantity_kg"],
+                        category=row["category"],
                     )
                     create_importation(session, data)
                     n_inserts += 1
+                except Exception as e:
+                    logger.warning(f"Error inserting row — {row.to_dict()} — {e}")
 
-                except (ValueError, KeyError, TypeError) as e:
-                    print(f"Error on row {idx} — data: {row.to_dict()} — {e}")
+        logger.info(
+            f"Importation ingestion complete: {n_inserts} inserted, {n_skipped} skipped."
+        )
 
-        print(f"Ingestion completed: {n_inserts} inserted, {n_skipped} skipped.")
+    def _prepare_dataframe(self, df: pd.DataFrame, category: str) -> pd.DataFrame:
+        df = df.drop(columns=["Id"], errors="ignore")
+
+        year_cols = [col for col in df.columns if col.isdigit()]
+        df = df.melt(
+            id_vars=["País"],
+            value_vars=year_cols,
+            var_name="year",
+            value_name="quantity_kg",
+        )
+
+        df = df.dropna(subset=["year", "quantity_kg"])
+        df["year"] = df["year"].astype(int)
+
+        df["quantity_kg"] = (
+            df["quantity_kg"]
+            .astype(str)
+            .str.lower()
+            .str.replace(",", ".", regex=False)
+            .apply(lambda x: x if x not in INVALID_VALUES else "0")
+            .astype(float)
+            .round()
+            .astype(int)
+        )
+
+        df = df.rename(columns={"País": "country"})
+        df["category"] = category
+
+        logger.info(f"Transformed {category} data: {df.shape}")
+        return df

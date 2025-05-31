@@ -1,18 +1,18 @@
-from fastapi import APIRouter, Depends, Query, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlmodel import Session
 
 from app.auth.dependencies import get_current_active_user, get_current_superuser
 from app.auth.models import User
-from app.core.config import settings
-from app.core.pagination import PaginatedResponse
-from app.core.database import get_session
 from app.commercialization.crud import (
     clear_commercialization,
     count_commercializations,
     list_commercializations,
 )
-from app.commercialization.models import CommercializationRead
 from app.commercialization.ingestor import CommercializationIngestor
+from app.commercialization.models import CommercializationRead
+from app.core.config import settings
+from app.core.database import get_session
+from app.core.pagination import PaginatedResponse
 
 router = APIRouter()
 
@@ -20,6 +20,7 @@ router = APIRouter()
 @router.get("/", response_model=PaginatedResponse[CommercializationRead])
 async def read_all(
     session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_active_user),
     page: int = Query(1, ge=1, description="Page number"),
     per_page: int = Query(100, ge=1, le=1000, description="Items per page"),
 ):

@@ -1,6 +1,6 @@
 from typing import Sequence
 
-from sqlmodel import Session, delete, select, func
+from sqlmodel import Session, delete, func, select
 
 from app.processing.constants import Category, Subcategory
 from app.processing.models import Processing, ProcessingCreate

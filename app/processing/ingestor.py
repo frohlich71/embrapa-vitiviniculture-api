@@ -3,13 +3,13 @@ import logging
 import pandas as pd
 from sqlmodel import Session
 
+from app.core.base_ingestor import EmbrapaBaseIngestor
 from app.processing.constants import Category, Subcategory
 from app.processing.crud import (
     create_processing,
     get_by_year_and_cultivate_and_category,
 )
 from app.processing.models import ProcessingCreate
-from app.core.base_ingestor import EmbrapaBaseIngestor
 
 logger = logging.getLogger(__name__)
 

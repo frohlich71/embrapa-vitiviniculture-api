@@ -4,10 +4,10 @@ import numpy as np
 import pandas as pd
 from sqlmodel import Session
 
+from app.core.base_ingestor import EmbrapaBaseIngestor
 from app.production.constants import Category
 from app.production.crud import create_production, get_by
 from app.production.models import ProductionCreate
-from app.core.base_ingestor import EmbrapaBaseIngestor
 
 logger = logging.getLogger(__name__)
 
