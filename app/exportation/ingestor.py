@@ -3,9 +3,16 @@ from sqlmodel import Session
 import logging
 
 from app.core.base_ingestor import EmbrapaBaseIngestor
-from app.exportation.crud import create_exportation, get_by_year_and_country_and_category
+from app.exportation.crud import (
+    create_exportation,
+    get_by_year_and_country_and_category,
+)
 from app.exportation.models import ExportationCreate
-from app.exportation.constants import EXPORTATION_PATHS, CATEGORY_MAPPING, INVALID_VALUES
+from app.exportation.constants import (
+    EXPORTATION_PATHS,
+    CATEGORY_MAPPING,
+    INVALID_VALUES,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -20,16 +27,16 @@ class ExportationIngestor(EmbrapaBaseIngestor):
 
         for path in EXPORTATION_PATHS:
             logger.info(f"Processing {path}...")
-            
+
             # Set CSV_PATH for base class
             self.CSV_PATH = path
-            
+
             # Get category from file path
             category = CATEGORY_MAPPING[path]
-            
+
             # Use tab separator for all exportation files
             df = self.fetch_csv(separator="\t")
-            
+
             # Transform dataframe
             df_transformed = self._prepare_dataframe(df, category)
 
@@ -67,49 +74,53 @@ class ExportationIngestor(EmbrapaBaseIngestor):
 
         # Find year columns - each year appears twice: YYYY (quantity) and YYYY.1 (value)
         year_cols = [col for col in df.columns if col.isdigit()]
-        
+
         # Create a list to store all processed rows
         processed_rows = []
-        
+
         for year_col in year_cols:
             year = int(year_col)
             quantity_col = year_col  # e.g., "1970"
             value_col = f"{year_col}.1"  # e.g., "1970.1"
-            
+
             # Check if both columns exist
             if quantity_col in df.columns and value_col in df.columns:
                 for _, row in df.iterrows():
                     country = row["País"]
                     quantity_kg = row[quantity_col]
                     value = row[value_col]
-                    
-                    processed_rows.append({
-                        "country": country,
-                        "year": year,
-                        "quantity_kg": quantity_kg,
-                        "value": value,
-                        "category": category
-                    })
+
+                    processed_rows.append(
+                        {
+                            "country": country,
+                            "year": year,
+                            "quantity_kg": quantity_kg,
+                            "value": value,
+                            "category": category,
+                        }
+                    )
             elif quantity_col in df.columns:
                 # Only quantity column exists
                 for _, row in df.iterrows():
                     country = row["País"]
                     quantity_kg = row[quantity_col]
-                    
-                    processed_rows.append({
-                        "country": country,
-                        "year": year,
-                        "quantity_kg": quantity_kg,
-                        "value": 0,  # No value data available
-                        "category": category
-                    })
-        
+
+                    processed_rows.append(
+                        {
+                            "country": country,
+                            "year": year,
+                            "quantity_kg": quantity_kg,
+                            "value": 0,  # No value data available
+                            "category": category,
+                        }
+                    )
+
         # Create new DataFrame from processed rows
         df_processed = pd.DataFrame(processed_rows)
-        
+
         # Clean and convert data
         df_processed = df_processed.dropna(subset=["year", "quantity_kg"])
-        
+
         # Process quantity_kg - convert to int with rounding
         df_processed["quantity_kg"] = (
             df_processed["quantity_kg"]
@@ -121,7 +132,7 @@ class ExportationIngestor(EmbrapaBaseIngestor):
             .round()
             .astype(int)
         )
-        
+
         # Process value - convert to int with rounding
         df_processed["value"] = (
             df_processed["value"]

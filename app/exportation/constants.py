@@ -3,6 +3,7 @@ from enum import Enum
 
 class Category(str, Enum):
     """Exportation categories based on CSV file structure."""
+
     VINHO = "vinho"
     ESPUMANTES = "espumantes"
     UVA = "uva"

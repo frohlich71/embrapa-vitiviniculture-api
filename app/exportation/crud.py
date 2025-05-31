@@ -30,7 +30,9 @@ def count_exportation_by_category(session: Session, category: Category) -> int:
     """
     Count exportation records by category.
     """
-    statement = select(func.count(Exportation.id)).where(Exportation.category == category)
+    statement = select(func.count(Exportation.id)).where(
+        Exportation.category == category
+    )
     result = session.exec(statement)
     return result.one()
 

@@ -2,7 +2,8 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlmodel import Session
 
-from app.auth.crud import UserCRUD
+
+from app.auth.crud import get_user_by_email
 from app.auth.models import User
 from app.auth.utils import verify_token
 from app.core.database import get_session
@@ -26,7 +27,7 @@ def get_current_user(
     if email is None:
         raise credentials_exception
 
-    user = UserCRUD.get_user_by_email(session, email=email)
+    user = get_user_by_email(session, email=email)
     if user is None:
         raise credentials_exception
 
